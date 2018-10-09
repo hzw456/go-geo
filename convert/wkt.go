@@ -2,8 +2,7 @@ package convert
 
 import (
 	"fmt"
-
-	"git.xiaojukeji.com/haozhiwei/go-geo/element"
+	"go-geo/element"
 )
 
 func PolygonToWkt(poly element.Polygon) (string, error) {

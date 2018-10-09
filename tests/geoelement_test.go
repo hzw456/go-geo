@@ -1,11 +1,10 @@
 package tests
 
 import (
+	"go-geo/calculation"
+	"go-geo/convert"
+	"go-geo/element"
 	"testing"
-
-	"git.xiaojukeji.com/haozhiwei/go-geo/calculation"
-	"git.xiaojukeji.com/haozhiwei/go-geo/convert"
-	"git.xiaojukeji.com/haozhiwei/go-geo/element"
 )
 
 func TestDistance(t *testing.T) {
@@ -36,5 +35,3 @@ func TestArea(t *testing.T) {
 	poly := element.NewPolygon(*lr)
 	t.Log(poly.Area())
 }
-
-func test

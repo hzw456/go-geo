@@ -1,11 +1,9 @@
 package tests
 
 import (
+	"go-geo/element"
+	"go-geo/relation"
 	"testing"
-
-	"git.xiaojukeji.com/haozhiwei/go-geo/element"
-
-	"git.xiaojukeji.com/haozhiwei/go-geo/relation"
 )
 
 func TestInpolygon(t *testing.T) {
