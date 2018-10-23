@@ -49,7 +49,14 @@ func TestSimplify(t *testing.T) {
 	newPoint2 := element.NewPoint(0.5, 0.5)
 	newPoint3 := element.NewPoint(1, 1)
 	newPoint4 := element.NewPoint(2, 2)
-	newPoint5 := element.NewPoint(2, 5)
+	newPoint5 := element.NewPoint(3, 3)
 	line := *element.NewLine(*newPoint1, *newPoint2, *newPoint3, *newPoint4, *newPoint5)
 	fmt.Println(simplify.DouglasPeucker(1).Simplify(line))
+}
+
+func TestPointToLineDis(t *testing.T) {
+	newPoint1 := *element.NewPoint(0, 0)
+	newPoint2 := *element.NewPoint(1, 2)
+	newPoint3 := *element.NewPoint(2, 5)
+	fmt.Println(calculation.PointToLineDistance(newPoint2, newPoint1, newPoint3))
 }

@@ -49,17 +49,13 @@ func dpWorker(line element.LineString, threshold float64) []int {
 				maxIndex = i
 			}
 		}
-		if maxDist == 0 {
-			for i := start + 1; i < end; i++ {
-				delIndexs = append(delIndexs, i)
-			}
-			return delIndexs
-		}
 		if maxDist > threshold {
 			stack[len(stack)-1] = maxIndex
 			stack = append(stack, maxIndex, end)
 		} else {
-			delIndexs = append(delIndexs, maxIndex)
+			for i := start + 1; i < end; i++ {
+				delIndexs = append(delIndexs, i)
+			}
 			stack = stack[:len(stack)-2]
 		}
 	}

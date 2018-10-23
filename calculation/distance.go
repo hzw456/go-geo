@@ -11,15 +11,14 @@ func PointDistance(p1 element.Point, p2 element.Point) float64 {
 	return math.Sqrt((p1.X-p2.X)*(p1.X-p2.X) + (p1.Y-p2.Y)*(p1.Y-p2.Y))
 }
 
-// //计算点到直线的距离 代数的方法 d = (fabs((y2 - y1) * x0 +(x1 - x2) * y0 + ((x2 * y1) -(x1 * y2)))) / (sqrt(pow(y2 - y1, 2) + pow(x1 - x2, 2)));
-//向量的方法，先求面积，再算
+// //计算点到直线的距离 向量的方法，先求三角形的面积，再用面积除以底边长
 func PointToLineDistance(point, p1, p2 element.Point) float64 {
 	if p1.Equal(p2) {
 		return PointDistance(p1, point)
 	}
 	area := polyArea(*element.NewPolygon(*element.NewLinearRing(*element.NewLine(p1, p2, point))))
 	dis := PointDistance(p1, p2)
-	return area / dis
+	return 2 * area / dis
 }
 
 // // DistanceFrom returns the distance from the boundary of the geometry in
