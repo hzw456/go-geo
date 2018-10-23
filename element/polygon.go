@@ -1,15 +1,15 @@
 package element
 
-import (
-	"math"
-)
-
 type Polygon []LinearRing
+type MultiPolygon []Polygon
 
-func NewPolygon(lr LinearRing) Polygon {
-	var poly Polygon
-	poly.SetExteriorRing(lr)
-	return poly
+func NewPolygon(lrs ...LinearRing) *Polygon {
+	var rings []LinearRing
+	for _, v := range lrs {
+		rings = append(rings, v)
+	}
+	poly := Polygon(rings)
+	return &poly
 }
 
 //多边形的外环
@@ -38,22 +38,4 @@ func (poly Polygon) GetInteriorRing() []LinearRing {
 //多边形内的洞
 func (poly *Polygon) SetInteriorRing(lines LinearRing) {
 	*poly = append(*poly, lines)
-}
-
-//求多边形的面积 论文:《多边形面积的计算与面积法的应用》
-func (poly *Polygon) Area() float64 {
-	lr := poly.GetExteriorRing()
-	if lr == nil {
-		return 0
-	}
-	ptCount := lr.GetPointCount()
-	var area float64
-	for i := 0; i < ptCount; i++ {
-		//最后一个点的处理
-		j := (i + 1) % ptCount
-		area += lr[i].X * lr[j].Y
-		area -= lr[i].Y * lr[j].X
-	}
-	area /= 2
-	return math.Abs(area)
 }

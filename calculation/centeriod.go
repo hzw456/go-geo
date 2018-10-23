@@ -1,6 +1,6 @@
 package calculation
 
-import "go-geo/element"
+import "github.com/sadnessly/go-geo/element"
 
 //计算多个点的中心
 func PointsCenteriod(points ...element.Point) *element.Point {
@@ -8,10 +8,6 @@ func PointsCenteriod(points ...element.Point) *element.Point {
 	for _, v := range points {
 		pointList = append(pointList, v)
 	}
-	return PointListCenteriod(pointList)
-}
-
-func PointListCenteriod(pointList []element.Point) *element.Point {
 	amount := len(pointList)
 	if amount == 0 {
 		return nil

@@ -1,6 +1,6 @@
 package relation
 
-import "go-geo/element"
+import "github.com/sadnessly/go-geo/element"
 
 func euqal(x float64, y float64) bool {
 	v := x - y

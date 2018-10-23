@@ -3,11 +3,12 @@ package element
 type LinearRing []Point
 
 func NewLinearRing(line LineString) *LinearRing {
-	firstPoint, err := line.GetFirstPoint()
-	endPoint, err := line.GetEndPoint()
+	err := line.Verify()
 	if err != nil {
 		return nil
 	}
+	firstPoint := line[0]
+	endPoint := line[len(line)-1]
 	if firstPoint.Equal(endPoint) {
 		linearRing := LinearRing(line)
 		return &linearRing
@@ -22,7 +23,7 @@ func (line *LinearRing) GetPointCount() int {
 	if line == nil {
 		return 0
 	}
-	return len(*line) - 1
+	return len(*line)
 }
 
 func (line *LinearRing) length() float64 {
