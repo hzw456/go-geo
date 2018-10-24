@@ -12,13 +12,7 @@ type DouglasPeuckerSimplifier struct {
 	Threshold float64
 }
 
-func DouglasPeucker(threshold float64) *DouglasPeuckerSimplifier {
-	return &DouglasPeuckerSimplifier{
-		Threshold: threshold,
-	}
-}
-
-func (s *DouglasPeuckerSimplifier) Simplify(line element.LineString) element.LineString {
+func (s DouglasPeuckerSimplifier) Simplify(line element.LineString) element.LineString {
 	///获取需要删除的点的序号
 	delIndexs := dpWorker(line, s.Threshold)
 	//排序，从后往前删
@@ -41,7 +35,6 @@ func dpWorker(line element.LineString, threshold float64) []int {
 		// modify the line in place
 		maxDist := 0.0
 		maxIndex := 0
-
 		for i := start + 1; i < end; i++ {
 			dist := calculation.PointToLineDistance(line[i], line[start], line[end])
 			if dist > maxDist {

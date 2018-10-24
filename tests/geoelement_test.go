@@ -39,9 +39,9 @@ func TestArea(t *testing.T) {
 func TestBuffer(t *testing.T) {
 	newPoint1 := element.NewPoint(200, 200)
 	buffer.Buffer(*newPoint1, 10)
-	t.Log(convert.PolygonToWkt(buffer.Buffer(*newPoint1, 10)))
+	t.Log(convert.GeoToWkt(buffer.Buffer(*newPoint1, 10)))
 	newLine := element.NewLine(element.Point{0, 0}, element.Point{5, 2}, element.Point{7, 2}, element.Point{10, 12})
-	t.Log(convert.PolygonToWkt(buffer.Buffer(*newLine, 5)))
+	t.Log(convert.GeoToWkt(buffer.Buffer(*newLine, 5)))
 }
 
 func TestSimplify(t *testing.T) {
@@ -51,7 +51,7 @@ func TestSimplify(t *testing.T) {
 	newPoint4 := element.NewPoint(2, 2)
 	newPoint5 := element.NewPoint(3, 3)
 	line := *element.NewLine(*newPoint1, *newPoint2, *newPoint3, *newPoint4, *newPoint5)
-	fmt.Println(simplify.DouglasPeucker(1).Simplify(line))
+	fmt.Println(simplify.DouglasPeuckerSimplifier{1}.Simplify(line))
 }
 
 func TestPointToLineDis(t *testing.T) {
@@ -59,4 +59,15 @@ func TestPointToLineDis(t *testing.T) {
 	newPoint2 := *element.NewPoint(1, 2)
 	newPoint3 := *element.NewPoint(2, 5)
 	fmt.Println(calculation.PointToLineDistance(newPoint2, newPoint1, newPoint3))
+}
+
+func TestWkt(t *testing.T) {
+	newPoint1 := *element.NewPoint(0, 0)
+	newPoint2 := *element.NewPoint(1, 2)
+	newPoint3 := *element.NewPoint(2, 5)
+	fmt.Println(convert.GeoToWkt(element.MultiPoint{newPoint1, newPoint2, newPoint3}))
+	line1 := *element.NewLine(newPoint1, newPoint2)
+	line2 := *element.NewLine(newPoint2, newPoint3)
+
+	fmt.Println(convert.GeoToWkt(element.MultiLineString{line1, line2}))
 }
