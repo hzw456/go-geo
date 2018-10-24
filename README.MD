@@ -1,14 +1,44 @@
-这是一个基于go的基础gis库，基本地理元素包括point，linestring，polygon，multipoint等的基础地理要素
-项目结构：
+这是一个基于go的基础gis库，提供了基本的空间计算能力
+Package go-geo is a general golang libary work for gis, it provide several basic function of spacial calculation.
+
+项目结构：project structure
 ```
-├── README.md         # 这个文档。
-│
-├── element/          # 包含所有基础地理元素的定义和相关操作
-├── calculation/      # 所有空间计算相关，包括空间要素间的距离等的计算
-├── relation/         # 空间关系相关，包含、相离、相交等的空间关系判断，基本空间关系使用九交模型
-└── convert/          # 转换类，可将基础地理要素转换为标准格式
+├── element/          # 包含所有基础地理元素的定义和相关操作 all defination of basic geometry
+├── calculation/      # 所有空间计算相关，包括空间要素间的距离、角度等的计算 spacial calculation ,including distance,angle
+├── relation/         # 空间关系相关，包含、相离、相交等的空间关系判断，基本空间关系使用九交模型（还未实现）spacial relation,including contain,intesect,etc. based on                           9-intersection model(not archieve yet)
+├── buffer/           # 缓冲区相关，计算元素的缓冲区 calculate buffer of element
+├── simplify/         # 简化相关类，对元素进行简化 class of simplify
+├── box/              # 外包框相关类 calculate box of geometry
+└── convert/          # 转换类，可将基础地理要素转换为wkt等的标准格式 class of conversion,covert basic elmnent to standard format,such as wkt
 ```
 
-功能规划：1 要素缓冲区（已实现点状要素）
-2 点到线的距离，线到线的最大最小距离，点到多边形距离
-3 空间关系类
+Features:
+1 define standard geometry
+2 output geometry to wkt,geojson
+3 provide basic function of spacial calculation
+
+Install
+Use go get to install this package.
+go get -u github.com/sadnessly/go-geo
+
+Usage:
+
+define geometry:
+    //define 3 points 
+	newPoint1 := *element.NewPoint(0, 0)
+	newPoint2 := *element.NewPoint(0.5, 0.5)
+	newPoint3 := *element.NewPoint(1, 1)
+    //define linestring by points
+	line := *element.NewLine(newPoint1, newPoint2, newPoint3)
+    //change linestirng to ring
+    lr := *element.NewLinearRing(line)
+    //define a polygon by linearring
+    poly := *element.NewPolygon(*lr)
+
+calculation:
+    //calculate area
+    calculation.Area(poly)
+
+convert: 
+    //convert geometry to wkt
+    convert.GeoToWkt(poly)

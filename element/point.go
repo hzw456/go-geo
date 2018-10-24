@@ -14,14 +14,6 @@ func NewPoint(x, y float64) *Point {
 	return &Point{x, y}
 }
 
-func NewPointStr(pointStr string) {
-
-}
-
-func NewPointJson(pointJson string) {
-
-}
-
 func (p *Point) SetX(x float64) {
 	p.X = x
 }
