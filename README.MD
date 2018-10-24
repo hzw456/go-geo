@@ -1,7 +1,8 @@
 这是一个基于go的基础gis库，提供了基本的空间计算能力
 Package go-geo is a general golang libary work for gis, it provide several basic function of spacial calculation.
+=========
 
-项目结构：project structure
+#项目结构：project structure
 ```
 ├── element/          # 包含所有基础地理元素的定义和相关操作 all defination of basic geometry
 ├── calculation/      # 所有空间计算相关，包括空间要素间的距离、角度等的计算 spacial calculation ,including distance,angle
@@ -12,18 +13,18 @@ Package go-geo is a general golang libary work for gis, it provide several basic
 └── convert/          # 转换类，可将基础地理要素转换为wkt等的标准格式 class of conversion,covert basic elmnent to standard format,such as wkt
 ```
 
-Features:
-1 define standard geometry
-2 output geometry to wkt,geojson
-3 provide basic function of spacial calculation
+#Features:
+* 1 define standard geometry
+* 2 output geometry to wkt,geojson
+* 3 provide basic function of spacial calculation
 
-Install
+#Install
 Use go get to install this package.
 go get -u github.com/sadnessly/go-geo
 
-Usage:
+#Usage:
 
-define geometry:
+##define geometry:
     //define 3 points 
 	newPoint1 := *element.NewPoint(0, 0)
 	newPoint2 := *element.NewPoint(0.5, 0.5)
@@ -35,10 +36,10 @@ define geometry:
     //define a polygon by linearring
     poly := *element.NewPolygon(*lr)
 
-calculation:
+##calculation:
     //calculate area
     calculation.Area(poly)
 
-convert: 
+##convert: 
     //convert geometry to wkt
     convert.GeoToWkt(poly)
