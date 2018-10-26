@@ -85,8 +85,8 @@ func polygonToWkt(polys ...element.Polygon) (wkt string) {
 	} else {
 		wkt = "POLYGON"
 	}
-	for _, poly := range polys {
-		for k, v := range poly {
+	for k, poly := range polys {
+		for _, v := range poly {
 			wkt = wkt + "(("
 			for kk, vv := range v {
 				wkt = wkt + fmt.Sprint(vv.X) + " " + fmt.Sprint(vv.Y)
@@ -95,7 +95,7 @@ func polygonToWkt(polys ...element.Polygon) (wkt string) {
 				}
 			}
 			wkt = wkt + "))"
-			if isMultipoly && k != len(poly)-1 {
+			if isMultipoly && k != len(polys)-1 {
 				wkt = wkt + ","
 			}
 		}

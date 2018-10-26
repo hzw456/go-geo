@@ -64,10 +64,12 @@ func TestPointToLineDis(t *testing.T) {
 func TestWkt(t *testing.T) {
 	newPoint1 := *element.NewPoint(0, 0)
 	newPoint2 := *element.NewPoint(1, 2)
-	newPoint3 := *element.NewPoint(2, 5)
+	newPoint3 := *element.NewPoint(2, 2)
+	newPoint4 := *element.NewPoint(2, 5)
 	fmt.Println(convert.GeoToWkt(element.MultiPoint{newPoint1, newPoint2, newPoint3}))
-	line1 := *element.NewLine(newPoint1, newPoint2)
-	line2 := *element.NewLine(newPoint2, newPoint3)
-
-	fmt.Println(convert.GeoToWkt(element.MultiLineString{line1, line2}))
+	line1 := *element.NewLine(newPoint1, newPoint2, newPoint3)
+	line2 := *element.NewLine(newPoint2, newPoint3, newPoint4)
+	poly1 := *element.NewPolygon(*element.NewLinearRing(line1))
+	poly2 := *element.NewPolygon(*element.NewLinearRing(line2))
+	fmt.Println(convert.GeoToWkt(*element.NewMultiPolygon(poly1, poly2)))
 }

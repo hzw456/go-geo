@@ -12,9 +12,6 @@ func NewLine(point ...Point) *LineString {
 	for _, point := range point {
 		points = append(points, point)
 	}
-	if len(points) < 2 {
-		return nil
-	}
 	line := LineString(points)
 	return &line
 }

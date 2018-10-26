@@ -12,6 +12,14 @@ func NewPolygon(lrs ...LinearRing) *Polygon {
 	return &poly
 }
 
+func NewMultiPolygon(polys ...Polygon) *MultiPolygon {
+	var mulitipoly MultiPolygon
+	for _, v := range polys {
+		mulitipoly = append(mulitipoly, v)
+	}
+	return &mulitipoly
+}
+
 //多边形的外环
 func (poly Polygon) GetExteriorRing() LinearRing {
 	if len(poly) == 0 {
@@ -38,4 +46,8 @@ func (poly Polygon) GetInteriorRing() []LinearRing {
 //多边形内的洞
 func (poly *Polygon) SetInteriorRing(lines LinearRing) {
 	*poly = append(*poly, lines)
+}
+
+func (multipoly *MultiPolygon) AddPolygon(poly Polygon) {
+	*multipoly = append(*multipoly, poly)
 }
