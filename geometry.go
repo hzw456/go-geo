@@ -1,4 +1,4 @@
-package element
+package gogeo
 
 type Geometry interface {
 	//Equal(geo Geometry) bool

@@ -1,10 +1,7 @@
-package simplify
+package gogeo
 
 import (
 	"sort"
-
-	"github.com/sadnessly/go-geo/calculation"
-	"github.com/sadnessly/go-geo/element"
 )
 
 //道格拉斯-匹克算法对线简化，参数：简化阈值 参考网站：https://blog.csdn.net/deram_boy/article/details/39177015
@@ -12,7 +9,7 @@ type DouglasPeuckerSimplifier struct {
 	Threshold float64
 }
 
-func (s DouglasPeuckerSimplifier) Simplify(line element.LineString) element.LineString {
+func (s DouglasPeuckerSimplifier) Simplify(line LineString) LineString {
 	///获取需要删除的点的序号
 	delIndexs := dpWorker(line, s.Threshold)
 	//排序，从后往前删
@@ -24,7 +21,7 @@ func (s DouglasPeuckerSimplifier) Simplify(line element.LineString) element.Line
 	return line
 }
 
-func dpWorker(line element.LineString, threshold float64) []int {
+func dpWorker(line LineString, threshold float64) []int {
 	var stack []int
 	stack = append(stack, 0, len(line)-1)
 	var delIndexs []int
@@ -36,7 +33,7 @@ func dpWorker(line element.LineString, threshold float64) []int {
 		maxDist := 0.0
 		maxIndex := 0
 		for i := start + 1; i < end; i++ {
-			dist := calculation.PointToLineDistance(line[i], line[start], line[end])
+			dist := PointToLineDistance(line[i], line[start], line[end])
 			if dist > maxDist {
 				maxDist = dist
 				maxIndex = i

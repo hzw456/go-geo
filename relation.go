@@ -1,6 +1,4 @@
-package relation
-
-import "github.com/sadnessly/go-geo/element"
+package gogeo
 
 func euqal(x float64, y float64) bool {
 	v := x - y
@@ -26,7 +24,7 @@ func little_equal(x float64, y float64) bool {
 	return x < y
 }
 
-func IsPointInPolygon(point element.Point, poly element.Polygon) bool {
+func IsPointInPolygon(point Point, poly Polygon) bool {
 	isIn := false
 
 	lr := poly.GetExteriorRing()

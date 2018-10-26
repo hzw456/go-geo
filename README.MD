@@ -28,15 +28,15 @@ go get -u github.com/sadnessly/go-geo
 ## define geometry ##
 ```go
     //define 3 points 
-	newPoint1 := *element.NewPoint(0, 0)
-	newPoint2 := *element.NewPoint(0.5, 0.5)
-	newPoint3 := *element.NewPoint(1, 1)
+	newPoint1 := *NewPoint(0, 0)
+	newPoint2 := *NewPoint(0.5, 0.5)
+	newPoint3 := *NewPoint(1, 1)
     //define linestring by points
-	line := *element.NewLine(newPoint1, newPoint2, newPoint3)
+	line := *NewLine(newPoint1, newPoint2, newPoint3)
     //change linestirng to ring
-    lr := *element.NewLinearRing(line)
+    lr := *NewLinearRing(line)
     //define a polygon by linearring
-    poly := *element.NewPolygon(*lr)
+    poly := *NewPolygon(*lr)
 ```    
 
 ## calculation ##

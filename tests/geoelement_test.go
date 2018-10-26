@@ -4,72 +4,68 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/sadnessly/go-geo/buffer"
-	"github.com/sadnessly/go-geo/calculation"
-	"github.com/sadnessly/go-geo/convert"
-	"github.com/sadnessly/go-geo/element"
-	"github.com/sadnessly/go-geo/simplify"
+	gogeo "github.com/sadnessly/go-geo"
 )
 
 func TestDistance(t *testing.T) {
-	newPoint := element.NewPoint(153.101112401, 27.797998206)
-	newPoint1 := element.NewPoint(200, 200)
+	newPoint := gogeo.NewPoint(153.101112401, 27.797998206)
+	newPoint1 := gogeo.NewPoint(200, 200)
 	//newPoint.SetX(500)
-	t.Log(calculation.PointDistance(*newPoint, *newPoint1))
-	t.Log(calculation.PointsCenteriod(*newPoint, *newPoint1))
+	t.Log(gogeo.PointDistance(*newPoint, *newPoint1))
+	t.Log(gogeo.PointsCenteriod(*newPoint, *newPoint1))
 }
 
 func TestLength(t *testing.T) {
-	newPoint := element.NewPoint(153.101112401, 27.797998206)
-	newPoint1 := element.NewPoint(200, 200)
-	line := element.NewLine(*newPoint, *newPoint1)
+	newPoint := gogeo.NewPoint(153.101112401, 27.797998206)
+	newPoint1 := gogeo.NewPoint(200, 200)
+	line := gogeo.NewLine(*newPoint, *newPoint1)
 	t.Log(line.Length())
 }
 
 func TestArea(t *testing.T) {
-	newPoint1 := element.NewPoint(100, 100)
-	newPoint2 := element.NewPoint(200, 100)
-	newPoint3 := element.NewPoint(200, 200)
-	newPoint4 := element.NewPoint(100, 200)
-	lr := element.NewLinearRing(*element.NewLine(*newPoint1, *newPoint2, *newPoint3, *newPoint4))
-	poly := *element.NewPolygon(*lr)
-	t.Log(calculation.Area(poly))
+	newPoint1 := gogeo.NewPoint(100, 100)
+	newPoint2 := gogeo.NewPoint(200, 100)
+	newPoint3 := gogeo.NewPoint(200, 200)
+	newPoint4 := gogeo.NewPoint(100, 200)
+	lr := gogeo.NewLinearRing(*gogeo.NewLine(*newPoint1, *newPoint2, *newPoint3, *newPoint4))
+	poly := *gogeo.NewPolygon(*lr)
+	t.Log(gogeo.Area(poly))
 }
 
 func TestBuffer(t *testing.T) {
-	newPoint1 := element.NewPoint(200, 200)
-	buffer.Buffer(*newPoint1, 10)
-	t.Log(convert.GeoToWkt(buffer.Buffer(*newPoint1, 10)))
-	newLine := element.NewLine(element.Point{0, 0}, element.Point{5, 2}, element.Point{7, 2}, element.Point{10, 12})
-	t.Log(convert.GeoToWkt(buffer.Buffer(*newLine, 5)))
+	newPoint1 := gogeo.NewPoint(200, 200)
+	gogeo.Buffer(*newPoint1, 10)
+	t.Log(gogeo.GeoToWkt(gogeo.Buffer(*newPoint1, 10)))
+	newLine := gogeo.NewLine(gogeo.Point{0, 0}, gogeo.Point{5, 2}, gogeo.Point{7, 2}, gogeo.Point{10, 12})
+	t.Log(gogeo.GeoToWkt(gogeo.Buffer(*newLine, 5)))
 }
 
 func TestSimplify(t *testing.T) {
-	newPoint1 := element.NewPoint(0, 0)
-	newPoint2 := element.NewPoint(0.5, 0.5)
-	newPoint3 := element.NewPoint(1, 1)
-	newPoint4 := element.NewPoint(2, 2)
-	newPoint5 := element.NewPoint(3, 3)
-	line := *element.NewLine(*newPoint1, *newPoint2, *newPoint3, *newPoint4, *newPoint5)
-	fmt.Println(simplify.DouglasPeuckerSimplifier{1}.Simplify(line))
+	newPoint1 := gogeo.NewPoint(0, 0)
+	newPoint2 := gogeo.NewPoint(0.5, 0.5)
+	newPoint3 := gogeo.NewPoint(1, 1)
+	newPoint4 := gogeo.NewPoint(2, 2)
+	newPoint5 := gogeo.NewPoint(3, 3)
+	line := *gogeo.NewLine(*newPoint1, *newPoint2, *newPoint3, *newPoint4, *newPoint5)
+	fmt.Println(gogeo.DouglasPeuckerSimplifier{1}.Simplify(line))
 }
 
 func TestPointToLineDis(t *testing.T) {
-	newPoint1 := *element.NewPoint(0, 0)
-	newPoint2 := *element.NewPoint(1, 2)
-	newPoint3 := *element.NewPoint(2, 5)
-	fmt.Println(calculation.PointToLineDistance(newPoint2, newPoint1, newPoint3))
+	newPoint1 := *gogeo.NewPoint(0, 0)
+	newPoint2 := *gogeo.NewPoint(1, 2)
+	newPoint3 := *gogeo.NewPoint(2, 5)
+	fmt.Println(gogeo.PointToLineDistance(newPoint2, newPoint1, newPoint3))
 }
 
 func TestWkt(t *testing.T) {
-	newPoint1 := *element.NewPoint(0, 0)
-	newPoint2 := *element.NewPoint(1, 2)
-	newPoint3 := *element.NewPoint(2, 2)
-	newPoint4 := *element.NewPoint(2, 5)
-	fmt.Println(convert.GeoToWkt(element.MultiPoint{newPoint1, newPoint2, newPoint3}))
-	line1 := *element.NewLine(newPoint1, newPoint2, newPoint3)
-	line2 := *element.NewLine(newPoint2, newPoint3, newPoint4)
-	poly1 := *element.NewPolygon(*element.NewLinearRing(line1))
-	poly2 := *element.NewPolygon(*element.NewLinearRing(line2))
-	fmt.Println(convert.GeoToWkt(*element.NewMultiPolygon(poly1, poly2)))
+	newPoint1 := *gogeo.NewPoint(0, 0)
+	newPoint2 := *gogeo.NewPoint(1, 2)
+	newPoint3 := *gogeo.NewPoint(2, 2)
+	newPoint4 := *gogeo.NewPoint(2, 5)
+	fmt.Println(gogeo.GeoToWkt(gogeo.MultiPoint{newPoint1, newPoint2, newPoint3}))
+	line1 := *gogeo.NewLine(newPoint1, newPoint2, newPoint3)
+	line2 := *gogeo.NewLine(newPoint2, newPoint3, newPoint4)
+	poly1 := *gogeo.NewPolygon(*gogeo.NewLinearRing(line1))
+	poly2 := *gogeo.NewPolygon(*gogeo.NewLinearRing(line2))
+	fmt.Println(gogeo.GeoToWkt(*gogeo.NewMultiPolygon(poly1, poly2)))
 }

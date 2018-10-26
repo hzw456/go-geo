@@ -1,30 +1,28 @@
-package convert
+package gogeo
 
 import (
 	"fmt"
-
-	"github.com/sadnessly/go-geo/element"
 )
 
-func GeoToWkt(geo element.Geometry) string {
+func GeoToWkt(geo Geometry) string {
 	switch geo := geo.(type) {
-	case element.Polygon:
+	case Polygon:
 		return polygonToWkt(geo)
-	case element.Point:
+	case Point:
 		return pointToWkt(geo)
-	case element.MultiPoint:
+	case MultiPoint:
 		return pointToWkt(geo...)
-	case element.LineString:
+	case LineString:
 		return lineToWkt(geo)
-	case element.MultiLineString:
+	case MultiLineString:
 		return lineToWkt(geo...)
-	case element.MultiPolygon:
+	case MultiPolygon:
 		return polygonToWkt(geo...)
 	}
 	return ""
 }
 
-func pointToWkt(points ...element.Point) (wkt string) {
+func pointToWkt(points ...Point) (wkt string) {
 	isMultipoint := false
 	if len(points) != 1 {
 		isMultipoint = true
@@ -49,7 +47,7 @@ func pointToWkt(points ...element.Point) (wkt string) {
 	return
 }
 
-func lineToWkt(lines ...element.LineString) (wkt string) {
+func lineToWkt(lines ...LineString) (wkt string) {
 	isMultiline := false
 	if len(lines) != 1 {
 		isMultiline = true
@@ -75,7 +73,7 @@ func lineToWkt(lines ...element.LineString) (wkt string) {
 	return
 }
 
-func polygonToWkt(polys ...element.Polygon) (wkt string) {
+func polygonToWkt(polys ...Polygon) (wkt string) {
 	isMultipoly := false
 	if len(polys) != 1 {
 		isMultipoly = true
