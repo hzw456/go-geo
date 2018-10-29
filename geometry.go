@@ -17,13 +17,3 @@ var (
 	_ Geometry = MultiPolygon{}
 	_ Geometry = Collection{}
 )
-
-// type lineElement interface {
-// 	Length() float64
-// 	GetPointCount() int
-// 	reverse()
-// }
-
-// type polyElement interface {
-// 	Area() float64
-// }

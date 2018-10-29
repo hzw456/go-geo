@@ -9,7 +9,7 @@ type box struct {
 	maxY float64
 }
 
-func boxToGeo(b box) Geometry {
+func BoxToGeo(b box) Geometry {
 	p1 := Point{b.minX, b.minY}
 	p2 := Point{b.minX, b.maxY}
 	p3 := Point{b.maxX, b.maxY}
@@ -41,6 +41,24 @@ func Envelope(geo Geometry) box {
 		for _, v := range geo {
 			for _, vv := range v {
 				pois = append(pois, vv)
+			}
+		}
+		return calBox(pois...)
+	case Polygon:
+		var pois []Point
+		for _, v := range geo {
+			for _, vv := range v {
+				pois = append(pois, vv)
+			}
+		}
+		return calBox(pois...)
+	case MultiPolygon:
+		var pois []Point
+		for _, v := range geo {
+			for _, vv := range v {
+				for _, vvv := range vv {
+					pois = append(pois, vvv)
+				}
 			}
 		}
 		return calBox(pois...)
