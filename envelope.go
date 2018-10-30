@@ -9,6 +9,14 @@ type box struct {
 	maxY float64
 }
 
+//在边界上也算在内部
+func IsPointInBox(b box, p Point) bool {
+	if b.minX <= p.X && p.X <= b.maxX && b.minY <= p.Y && p.Y <= b.maxY {
+		return true
+	}
+	return false
+}
+
 func BoxToGeo(b box) Geometry {
 	p1 := Point{b.minX, b.minY}
 	p2 := Point{b.minX, b.maxY}
@@ -30,22 +38,29 @@ func BoxToGeo(b box) Geometry {
 
 //求多边形的面积 论文:《多边形面积的计算与面积法的应用》
 func Envelope(geo Geometry) box {
+	var pois []Point
 	switch geo := geo.(type) {
 	case Point:
 		return calBox(geo)
-	case MultiPoint, LineString, LinearRing:
-		pois := geo.([]Point)
-		return calBox(pois...)
+	case MultiPoint:
+		for _, v := range geo {
+			pois = append(pois, v)
+		}
+	case LineString:
+		for _, v := range geo {
+			pois = append(pois, v)
+		}
+	case LinearRing:
+		for _, v := range geo {
+			pois = append(pois, v)
+		}
 	case MultiLineString:
-		var pois []Point
 		for _, v := range geo {
 			for _, vv := range v {
 				pois = append(pois, vv)
 			}
 		}
-		return calBox(pois...)
 	case Polygon:
-		var pois []Point
 		for _, v := range geo {
 			for _, vv := range v {
 				pois = append(pois, vv)
@@ -53,7 +68,6 @@ func Envelope(geo Geometry) box {
 		}
 		return calBox(pois...)
 	case MultiPolygon:
-		var pois []Point
 		for _, v := range geo {
 			for _, vv := range v {
 				for _, vvv := range vv {
@@ -61,10 +75,10 @@ func Envelope(geo Geometry) box {
 				}
 			}
 		}
-		return calBox(pois...)
 	default:
 		return calBox(Point{0, 0})
 	}
+	return calBox(pois...)
 }
 
 func calBox(points ...Point) box {

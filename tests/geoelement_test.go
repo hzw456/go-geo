@@ -82,3 +82,31 @@ func TestEnvolope(t *testing.T) {
 
 	fmt.Println(gogeo.GeoToWkt(gogeo.BoxToGeo(gogeo.Envelope(poly1))))
 }
+
+func TestPointinPoly(t *testing.T) {
+	newPoint1 := *gogeo.NewPoint(0, 0)
+	newPoint2 := *gogeo.NewPoint(1, 2)
+	newPoint3 := *gogeo.NewPoint(2, 2)
+	newPoint4 := *gogeo.NewPoint(2, 5)
+	newPoint5 := *gogeo.NewPoint(0.5, 0.7)
+	newPoint6 := *gogeo.NewPoint(0.5, 0.5)
+	line1 := *gogeo.NewLine(newPoint1, newPoint2, newPoint3)
+	poly1 := *gogeo.NewPolygon(*gogeo.NewLinearRing(line1))
+	if gogeo.IsPointInPolygon(newPoint4, poly1) {
+		t.Error("failed, the point is not in poly")
+	} else {
+		t.Log("success")
+	}
+
+	if !gogeo.IsPointInPolygon(newPoint5, poly1) {
+		t.Error("failed, the point is in poly")
+	} else {
+		t.Log("success")
+	}
+
+	if !gogeo.IsPointInPolygon(newPoint6, poly1) {
+		t.Error("failed, the point is not in poly")
+	} else {
+		t.Log("success")
+	}
+}

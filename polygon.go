@@ -44,7 +44,7 @@ func (poly Polygon) GetInteriorRing() []LinearRing {
 }
 
 //多边形内的洞
-func (poly *Polygon) SetInteriorRing(lines LinearRing) {
+func (poly *Polygon) AddInteriorRing(lines LinearRing) {
 	*poly = append(*poly, lines)
 }
 
