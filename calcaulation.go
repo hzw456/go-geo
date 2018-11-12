@@ -40,7 +40,7 @@ func CacQuadrantAngle(point1, point2 Point) (float64, error) {
 }
 
 //求多边形的面积 论文:《多边形面积的计算与面积法的应用》
-func Area(geo Geometry) float64 {
+func GetArea(geo Geometry) float64 {
 	switch geo := geo.(type) {
 	case Polygon:
 		return polyArea(geo)
@@ -76,14 +76,14 @@ func MultiPolyArea(multiPoly MultiPolygon) float64 {
 }
 
 //计算多个点的中心
-func PointsCenteriod(points ...Point) *Point {
+func pointsCenteriod(points ...Point) Point {
 	var pointList []Point
 	for _, v := range points {
 		pointList = append(pointList, v)
 	}
 	amount := len(pointList)
 	if amount == 0 {
-		return nil
+		return Point{0, 0}
 	}
 	var lats, Lat float64
 	var lngs, Lng float64
@@ -93,7 +93,7 @@ func PointsCenteriod(points ...Point) *Point {
 	}
 	Lat = lats / float64(amount)
 	Lng = lngs / float64(amount)
-	return &Point{Lat, Lng}
+	return Point{Lat, Lng}
 }
 
 //计算顶点的凹凸性 先计算待处理点与相邻点的两个向量，再计算两向量的叉乘，根据求得结果的正负可以判断凹凸性。 0代表凸顶点，1代表凹顶点，2代表平角
@@ -125,4 +125,50 @@ func PointToLineDistance(point, p1, p2 Point) float64 {
 	area := polyArea(*NewPolygon(*NewLinearRing(*NewLine(p1, p2, point))))
 	dis := PointDistance(p1, p2)
 	return 2 * area / dis
+}
+
+//https://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
+//如果是一堆点 即计算其坐标的平均值
+func Centroid(geo Geometry) Point {
+	switch geo := geo.(type) {
+	case Point:
+		return geo
+	case MultiPoint:
+		return pointsCenteriod(geo...)
+	case LineString:
+		return lineCentroid(geo)
+	case LinearRing:
+		return LinearCentroid(geo)
+	case Polygon:
+		return polyCentroid(geo)
+	}
+	return Point{0, 0}
+}
+
+//TODO:如果线在一条直线上，需要改进算法
+func lineCentroid(line LineString) Point {
+	return LinearCentroid(*NewLinearRing(line))
+}
+
+func LinearCentroid(ring LinearRing) Point {
+	return polyCentroid(*NewPolygon(ring))
+}
+
+func polyCentroid(poly Polygon) Point {
+	lr := poly.GetExteriorRing()
+	if lr == nil {
+		return Point{0, 0}
+	}
+	area := GetArea(poly)
+	ptCount := lr.GetPointCount() - 1
+	var centroidX, centroidY float64
+	for i := 0; i < ptCount; i++ {
+		//最后一个点的处理
+		j := (i + 1) % ptCount
+		centroidX += (lr[i].X + lr[j].X) * (lr[i].X*lr[j].Y - lr[j].X*lr[i].Y)
+		centroidY += (lr[i].Y + lr[j].Y) * (lr[i].X*lr[j].Y - lr[j].X*lr[i].Y)
+	}
+	centroidX *= 1 / (6 * area)
+	centroidY *= 1 / (6 * area)
+	return Point{centroidX, centroidY}
 }

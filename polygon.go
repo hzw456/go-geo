@@ -51,3 +51,28 @@ func (poly *Polygon) AddInteriorRing(lines LinearRing) {
 func (multipoly *MultiPolygon) AddPolygon(poly Polygon) {
 	*multipoly = append(*multipoly, poly)
 }
+
+func (poly Polygon) SelfIntersect() bool {
+	//if edgeNum > 3 {
+	//	if p.Points[edgeNum-2].Equal(&p.Points[edgeNum-1]) || p.Points[0].Equal(&p.Points[edgeNum-1]) {
+	//		edgeNum = edgeNum - 1
+	//	}
+	//}
+	exRing := poly.GetExteriorRing()
+	pointCount := exRing.GetPointCount()
+	for i := 0; i < pointCount-1; i++ {
+		srcV0 := exRing[i]
+		srcV1 := exRing[(i+1)%pointCount]
+		for j := 0; j < pointCount; j++ {
+			if i == j || i-j == 1 || j-i == 1 || i-j == pointCount-1 || j-i == pointCount-1 { //cojoin or ewqul
+				continue
+			}
+			dstV0 := exRing[j]
+			dstV1 := exRing[(j+1)%pointCount]
+			if segmentIntersect(srcV0, srcV1, dstV0, dstV1) {
+				return true
+			}
+		}
+	}
+	return false
+}

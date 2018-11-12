@@ -66,7 +66,6 @@ func Envelope(geo Geometry) box {
 				pois = append(pois, vv)
 			}
 		}
-		return calBox(pois...)
 	case MultiPolygon:
 		for _, v := range geo {
 			for _, vv := range v {

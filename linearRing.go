@@ -19,11 +19,8 @@ func NewLinearRing(line LineString) *LinearRing {
 	}
 }
 
-func (line *LinearRing) GetPointCount() int {
-	if line == nil {
-		return 0
-	}
-	return len(*line)
+func (line LinearRing) GetPointCount() int {
+	return len(line)
 }
 
 func (line *LinearRing) length() float64 {
