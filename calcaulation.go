@@ -5,7 +5,7 @@ import (
 
 	"math"
 
-	"github.com/gonum/gonum/blas/blas64"
+	"gonum.org/v1/gonum/blas/blas64"
 )
 
 //计算三个点的角度 使用公式θ=atan2(v2.y,v2.x)−atan2(v1.y,v1.x)
