@@ -23,10 +23,10 @@ func (line LinearRing) GetPointCount() int {
 	return len(line)
 }
 
-func (line *LinearRing) length() float64 {
+func (line LinearRing) length() float64 {
 	var dis float64
-	for i := 0; i < line.GetPointCount()-1; i++ {
-		dis += (*line)[i].PointDistance((*line)[i+1])
+	for i := 0; i < line.GetPointCount(); i++ {
+		dis += line[i].PointDistance(line[i+1])
 	}
 	return dis
 }

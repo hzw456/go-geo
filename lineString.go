@@ -7,6 +7,11 @@ import (
 type LineString []Point
 type MultiLineString []LineString
 
+type LineSegment struct {
+	start Point
+	end   Point
+}
+
 func NewLine(point ...Point) *LineString {
 	var points []Point
 	for _, point := range point {

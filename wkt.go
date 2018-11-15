@@ -19,7 +19,7 @@ func GeoToWkt(geo Geometry) string {
 	case MultiPolygon:
 		return polygonToWkt(geo...)
 	}
-	return ""
+	return "no such type"
 }
 
 func pointToWkt(points ...Point) (wkt string) {

@@ -21,11 +21,12 @@ func NewHexagon(coords ...*CoordUnit) (hex *Hexagon) {
 func (hex *Hexagon) toPoly() gogeo.Polygon {
 	line := gogeo.LineString{}
 	for _, v := range *hex {
-		line.AppendPoint(gogeo.Point{v.Lng, v.Lat})
+		line.AppendPoint(gogeo.Point{X: v.Lng, Y: v.Lat})
 	}
 	return *gogeo.NewPolygon(*gogeo.NewLinearRing(line))
 }
 
-// func (hex *Hexagon) getCenter() CoordUnit {
-
-// }
+func (hex *Hexagon) getCenter() CoordUnit {
+	center := gogeo.Centroid(hex.toPoly)
+	return CoordUnit{Lng: center.X, Lat: center.Y}
+}

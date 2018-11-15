@@ -5,7 +5,7 @@ Package go-geo is a general golang libary work for gis, it provide several basic
 
 # 项目结构：project structure #
 ```
-├── element/          # 包含所有基础地理元素的定义和相关操作 all defination of basic geometry
+├── element/          # 包含所有基础地理元素的定义和相关操作 defination of basic geometry
 ├── calculation/      # 所有空间计算相关，包括空间要素间的距离、角度等的计算 spacial calculation ,including distance,angle
 ├── relation/         # 空间关系相关，包含、相离、相交等的空间关系判断，基本空间关系使用九交模型（还未实现）spacial relation,including contain,intesect,etc. based on                           9-intersection model(not archieve yet)
 ├── buffer/           # 缓冲区相关，计算元素的缓冲区 calculate buffer of element

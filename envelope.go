@@ -36,7 +36,7 @@ func BoxToGeo(b box) Geometry {
 	return *NewPolygon(LinearRing{p1, p2, p3, p4})
 }
 
-//求多边形的面积 论文:《多边形面积的计算与面积法的应用》
+//求要素的外包矩形
 func Envelope(geo Geometry) box {
 	var pois []Point
 	switch geo := geo.(type) {

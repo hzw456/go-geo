@@ -5,7 +5,7 @@ import (
 
 	"math"
 
-	"gonum.org/v1/gonum/blas/blas64"
+	"github.com/gonum/gonum/blas/blas64"
 )
 
 //计算三个点的角度 使用公式θ=atan2(v2.y,v2.x)−atan2(v1.y,v1.x)
@@ -127,7 +127,25 @@ func PointToLineDistance(point, p1, p2 Point) float64 {
 	return 2 * area / dis
 }
 
-//https://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
+//计算点到线段的距离 计算了最近点
+func PointToSegmentDistance(point, p1, p2 Point) (float64, Point) {
+	var xDelta float64 = p2.X - p1.X
+	var yDelta float64 = p2.Y - p1.Y
+
+	//	final double u = ((p3.getX() - p1.getX()) * xDelta + (p3.getY() - p1.getY()) * yDelta) / (xDelta * xDelta + yDelta * yDelta);
+	var u float64 = ((point.X-p1.X)*xDelta + (point.Y-p1.Y)*yDelta) / (xDelta*xDelta + yDelta*yDelta)
+
+	var closestPointOnLine Point
+	if u < 0 {
+		closestPointOnLine = p1
+	} else if u > 1 {
+		closestPointOnLine = p2
+	} else {
+		closestPointOnLine = Point{X: (p1.X + u*xDelta), Y: (p1.Y + u*yDelta)}
+	}
+	return PointDistance(point, closestPointOnLine), closestPointOnLine
+}
+
 //如果是一堆点 即计算其坐标的平均值
 func Centroid(geo Geometry) Point {
 	switch geo := geo.(type) {
@@ -154,21 +172,44 @@ func LinearCentroid(ring LinearRing) Point {
 	return polyCentroid(*NewPolygon(ring))
 }
 
+//https://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
 func polyCentroid(poly Polygon) Point {
 	lr := poly.GetExteriorRing()
 	if lr == nil {
 		return Point{0, 0}
 	}
-	area := GetArea(poly)
 	ptCount := lr.GetPointCount() - 1
-	var centroidX, centroidY float64
+	var centroidX, centroidY, signArea float64
 	for i := 0; i < ptCount; i++ {
 		//最后一个点的处理
 		j := (i + 1) % ptCount
 		centroidX += (lr[i].X + lr[j].X) * (lr[i].X*lr[j].Y - lr[j].X*lr[i].Y)
 		centroidY += (lr[i].Y + lr[j].Y) * (lr[i].X*lr[j].Y - lr[j].X*lr[i].Y)
+		signArea += lr[i].X*lr[j].Y - lr[j].X*lr[i].Y
 	}
-	centroidX *= 1 / (6 * area)
-	centroidY *= 1 / (6 * area)
+	centroidX *= 1 / (6 * signArea / 2)
+	centroidY *= 1 / (6 * signArea / 2)
 	return Point{centroidX, centroidY}
+}
+
+func PointPolygonDistance(p Point, poly Polygon) float64 {
+	if IsPointInPolygon(p, poly) {
+		return 0
+	}
+	var distance = INF
+	lr := poly.GetExteriorRing()
+	ptCount := lr.GetPointCount() - 1
+	for i := 0; i < ptCount; i++ {
+		//最后一个点的处理
+		j := (i + 1) % ptCount
+		var previousPoint Point = lr[i]
+		var currentPoint Point = lr[j]
+
+		segmentDistance, _ := PointToSegmentDistance(p, previousPoint, currentPoint)
+
+		if segmentDistance < distance {
+			distance = segmentDistance
+		}
+	}
+	return distance
 }

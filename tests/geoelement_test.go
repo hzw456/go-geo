@@ -12,7 +12,7 @@ func TestDistance(t *testing.T) {
 	newPoint1 := gogeo.NewPoint(200, 200)
 	//newPoint.SetX(500)
 	t.Log(gogeo.PointDistance(*newPoint, *newPoint1))
-	t.Log(gogeo.PointsCenteriod(*newPoint, *newPoint1))
+	//t.Log(gogeo.Centroid(*newPoint, *newPoint1))
 }
 
 func TestLength(t *testing.T) {
@@ -29,7 +29,7 @@ func TestArea(t *testing.T) {
 	newPoint4 := gogeo.NewPoint(100, 200)
 	lr := gogeo.NewLinearRing(*gogeo.NewLine(*newPoint1, *newPoint2, *newPoint3, *newPoint4))
 	poly := *gogeo.NewPolygon(*lr)
-	t.Log(gogeo.Area(poly))
+	t.Log(gogeo.GetArea(poly))
 }
 
 func TestBuffer(t *testing.T) {
