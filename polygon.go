@@ -87,23 +87,16 @@ func (p *Polygon) Verify() error {
 }
 
 func (poly Polygon) SelfIntersect() bool {
-	//if edgeNum > 3 {
-	//	if p.Points[edgeNum-2].Equal(&p.Points[edgeNum-1]) || p.Points[0].Equal(&p.Points[edgeNum-1]) {
-	//		edgeNum = edgeNum - 1
-	//	}
-	//}
 	exRing := poly.GetExteriorRing()
 	pointCount := exRing.GetPointCount()
 	for i := 0; i < pointCount-1; i++ {
 		srcV0 := exRing[i]
 		srcV1 := exRing[(i+1)%pointCount]
-		for j := 0; j < pointCount; j++ {
-			if i == j || i-j == 1 || j-i == 1 || i-j == pointCount-1 || j-i == pointCount-1 { //cojoin or ewqul
-				continue
-			}
+		for j := i + 1; j < pointCount-1; j++ {
 			dstV0 := exRing[j]
 			dstV1 := exRing[(j+1)%pointCount]
-			if segmentIntersect(LineSegment{srcV0, srcV1}, LineSegment{dstV0, dstV1}) {
+			relation := SegmentRelation(LineSegment{srcV0, srcV1}, LineSegment{dstV0, dstV1})
+			if relation == GEO_INTERSECT || relation == GEO_TOUCH {
 				return true
 			}
 		}

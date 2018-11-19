@@ -25,7 +25,7 @@ func (line LinearRing) GetPointCount() int {
 
 func (line LinearRing) length() float64 {
 	var dis float64
-	for i := 0; i < line.GetPointCount(); i++ {
+	for i := 0; i < line.GetPointCount()-1; i++ {
 		dis += line[i].PointDistance(line[i+1])
 	}
 	return dis

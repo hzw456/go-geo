@@ -8,8 +8,8 @@ type LineString []Point
 type MultiLineString []LineString
 
 type LineSegment struct {
-	start Point
-	end   Point
+	Start Point
+	End   Point
 }
 
 func NewLine(point ...Point) *LineString {

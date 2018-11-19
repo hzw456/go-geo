@@ -4,34 +4,29 @@ import (
 	"errors"
 
 	"math"
-
-	"gonum.org/v1/gonum/blas/blas64"
 )
 
 //计算三个点的角度 使用公式θ=atan2(v2.y,v2.x)−atan2(v1.y,v1.x)
 func CacAngle(point1, centerPoint, point2 Point) (float64, error) {
-	v := LineToVector(point1, centerPoint)
-	u := LineToVector(point2, centerPoint)
-	nrmProduct := blas64.Nrm2(2, v) * blas64.Nrm2(2, u)
+	v := ConvertPointToVector(point1, centerPoint)
+	u := ConvertPointToVector(point2, centerPoint)
+	// v := LineToVector(point1, centerPoint)
+	// u := LineToVector(point2, centerPoint)
+	nrmProduct := v.Length() * u.Length()
 	if nrmProduct == 0 {
 		err := errors.New("some points is repeat")
 		return 0, err
 	}
 	var theta float64
-	if u.Inc == 1 && v.Inc == 1 {
-		if len(u.Data) == 2 && len(v.Data) == 2 {
-			theta = math.Atan2(u.Data[1], u.Data[0]) - math.Atan2(v.Data[1], v.Data[0])
-			if theta < 0 {
-				theta = theta + 2*math.Pi
-			}
-			return theta, nil
-		} else {
-			err := errors.New("no support more than 2 dimensions")
-			return 0, err
-		}
+
+	theta = math.Atan2(u.Y, u.X) - math.Atan2(v.Y, v.X)
+	if theta < 0 {
+		theta = theta + 2*math.Pi
 	}
-	err := errors.New("not validate vector")
-	return 0, err
+	return theta, nil
+
+	// err := errors.New("not validate vector")
+	// return 0, err
 }
 
 func CacQuadrantAngle(point1, point2 Point) (float64, error) {
@@ -193,7 +188,7 @@ func polyCentroid(poly Polygon) Point {
 }
 
 func PointPolygonDistance(p Point, poly Polygon) float64 {
-	if IsPointInPolygon(p, poly) {
+	if IsPointInPolygon(p, poly) == GEO_CONTAIN || IsPointInPolygon(p, poly) == GEO_TOUCH {
 		return 0
 	}
 	var distance = INF

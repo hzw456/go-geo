@@ -1,7 +1,5 @@
 package gogeo
 
-const MAX = 9999999999999.0
-
 type box struct {
 	minX float64
 	minY float64
@@ -81,7 +79,7 @@ func Envelope(geo Geometry) box {
 }
 
 func calBox(points ...Point) box {
-	var minX, minY, maxX, maxY float64 = MAX, MAX, -MAX, -MAX
+	var minX, minY, maxX, maxY float64 = INF, INF, -INF, -INF
 	for _, v := range points {
 		if minX > v.X {
 			minX = v.X
