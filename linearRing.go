@@ -2,7 +2,16 @@ package gogeo
 
 type LinearRing []Point
 
-func NewLinearRing(line LineString) *LinearRing {
+func NewLinearRing(point ...Point) *LinearRing {
+	var points []Point
+	for _, point := range point {
+		points = append(points, point)
+	}
+	line := LineString(points)
+	return NewLinearRingFromLineString(line)
+}
+
+func NewLinearRingFromLineString(line LineString) *LinearRing {
 	err := line.Verify()
 	if err != nil {
 		return nil

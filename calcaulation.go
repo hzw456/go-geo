@@ -117,7 +117,7 @@ func PointToLineDistance(point, p1, p2 Point) float64 {
 	if p1.Equal(p2) {
 		return PointDistance(p1, point)
 	}
-	area := polyArea(*NewPolygon(*NewLinearRing(*NewLine(p1, p2, point))))
+	area := polyArea(*NewPolygon(*NewLinearRing(p1, p2, point)))
 	dis := PointDistance(p1, p2)
 	return 2 * area / dis
 }
@@ -160,7 +160,7 @@ func Centroid(geo Geometry) Point {
 
 //TODO:如果线在一条直线上，需要改进算法
 func lineCentroid(line LineString) Point {
-	return LinearCentroid(*NewLinearRing(line))
+	return LinearCentroid(*NewLinearRingFromLineString(line))
 }
 
 func LinearCentroid(ring LinearRing) Point {

@@ -27,7 +27,7 @@ func TestArea(t *testing.T) {
 	newPoint2 := gogeo.NewPoint(200, 100)
 	newPoint3 := gogeo.NewPoint(200, 200)
 	newPoint4 := gogeo.NewPoint(100, 200)
-	lr := gogeo.NewLinearRing(*gogeo.NewLine(*newPoint1, *newPoint2, *newPoint3, *newPoint4))
+	lr := gogeo.NewLinearRing(*newPoint1, *newPoint2, *newPoint3, *newPoint4)
 	poly := *gogeo.NewPolygon(*lr)
 	t.Log(gogeo.GetArea(poly))
 }
@@ -65,8 +65,8 @@ func TestWkt(t *testing.T) {
 	fmt.Println(gogeo.GeoToWkt(gogeo.MultiPoint{newPoint1, newPoint2, newPoint3}))
 	line1 := *gogeo.NewLine(newPoint1, newPoint2, newPoint3)
 	line2 := *gogeo.NewLine(newPoint2, newPoint3, newPoint4)
-	poly1 := *gogeo.NewPolygon(*gogeo.NewLinearRing(line1))
-	poly2 := *gogeo.NewPolygon(*gogeo.NewLinearRing(line2))
+	poly1 := *gogeo.NewPolygon(*gogeo.NewLinearRingFromLineString(line1))
+	poly2 := *gogeo.NewPolygon(*gogeo.NewLinearRingFromLineString(line2))
 	fmt.Println(gogeo.GeoToWkt(*gogeo.NewMultiPolygon(poly1, poly2)))
 }
 
@@ -77,7 +77,7 @@ func TestEnvolope(t *testing.T) {
 	//newPoint4 := *gogeo.NewPoint(2, 5)
 	line1 := *gogeo.NewLine(newPoint1, newPoint2, newPoint3)
 	//line2 := *gogeo.NewLine(newPoint2, newPoint3, newPoint4)
-	poly1 := *gogeo.NewPolygon(*gogeo.NewLinearRing(line1))
+	poly1 := *gogeo.NewPolygon(*gogeo.NewLinearRingFromLineString(line1))
 	//poly2 := *gogeo.NewPolygon(*gogeo.NewLinearRing(line2))
 
 	fmt.Println(gogeo.GeoToWkt(gogeo.BoxToGeo(gogeo.Envelope(poly1))))
@@ -91,7 +91,7 @@ func TestPointinPoly(t *testing.T) {
 	newPoint5 := *gogeo.NewPoint(0.5, 0.7)
 	newPoint6 := *gogeo.NewPoint(0.5, 0.5)
 	line1 := *gogeo.NewLine(newPoint1, newPoint2, newPoint3)
-	poly1 := *gogeo.NewPolygon(*gogeo.NewLinearRing(line1))
+	poly1 := *gogeo.NewPolygon(*gogeo.NewLinearRingFromLineString(line1))
 	if gogeo.IsPointInPolygon(newPoint4, poly1) == gogeo.GEO_CONTAIN {
 		t.Error("failed, the point is not in poly")
 	} else {

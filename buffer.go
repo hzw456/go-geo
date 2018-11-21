@@ -24,7 +24,7 @@ func pointBuffer(p1 Point, bufferDis float64) Polygon {
 		return nil
 	}
 	bufferPoints := getBufferCoordsByRadian(p1, 0, 2*math.Pi, bufferDis)
-	lr := NewLinearRing(*NewLine(bufferPoints...))
+	lr := NewLinearRing(bufferPoints...)
 	poly := NewPolygon(*lr)
 	return *poly
 }
@@ -50,7 +50,7 @@ func lineBuffer(line1 LineString, bufferDis float64) Polygon {
 	var bufferPoints []Point
 	bufferPoints = append(bufferPoints, leftPoints...)
 	bufferPoints = append(bufferPoints, rightPoints...)
-	lr := NewLinearRing(*NewLine(bufferPoints...))
+	lr := NewLinearRing(bufferPoints...)
 	poly := NewPolygon(*lr)
 	return *poly
 }

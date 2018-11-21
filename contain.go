@@ -16,7 +16,7 @@ func dcmp(x float64) int {
 }
 
 //rebuild by hzw
-func IsPointInPolygon(point Point, poly Polygon) int {
+func IsPointInPolygon(point Point, poly Polygon) GeometryRealation {
 	isIn := false
 	lr := poly.GetExteriorRing()
 	pointCount := lr.GetPointCount()

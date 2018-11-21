@@ -8,7 +8,7 @@ import (
 
 func TestInpolygon(t *testing.T) {
 	line := gogeo.NewLine(gogeo.Point{2, 1}, gogeo.Point{8, 1}, gogeo.Point{8, 6}, gogeo.Point{6, 6}, gogeo.Point{6, 3}, gogeo.Point{4, 3}, gogeo.Point{4, 5}, gogeo.Point{2, 5})
-	poly := *gogeo.NewPolygon(*gogeo.NewLinearRing(*line))
+	poly := *gogeo.NewPolygon(*gogeo.NewLinearRingFromLineString(*line))
 	// verts := [][]float64{{2, 1}, {8, 1}, {8, 6}, {6, 6}, {6, 3}, {4, 3}, {4, 5}, {2, 5}}
 	t.Log(gogeo.IsPointInPolygon(gogeo.Point{5, 4}, poly))
 	t.Log(gogeo.IsPointInPolygon(gogeo.Point{6, 6}, poly))
@@ -21,7 +21,7 @@ func TestInpolygon(t *testing.T) {
 }
 
 func TestPolyIntersect(t *testing.T) {
-	poly1 := *gogeo.NewSimplePolygon(gogeo.Point{32.134057, 118.867052}, gogeo.Point{32.133586, 118.863761}, gogeo.Point{32.133369, 118.861667},
+	poly1 := *gogeo.NewPolygonFromPois(gogeo.Point{32.134057, 118.867052}, gogeo.Point{32.133586, 118.863761}, gogeo.Point{32.133369, 118.861667},
 		gogeo.Point{32.133224, 118.859658}, gogeo.Point{32.132899, 118.85782}, gogeo.Point{32.132899, 118.857221}, gogeo.Point{32.134257, 118.857245},
 		gogeo.Point{32.137153, 118.857095}, gogeo.Point{32.141044, 118.85701}, //gogeo.Point{32.141259, 118.859529}, gogeo.Point{32.141295, 118.86312},
 		gogeo.Point{32.14144, 118.866667}, gogeo.Point{32.1422, 118.86671}, gogeo.Point{32.143756, 118.866411}, gogeo.Point{32.145458, 118.866625},
@@ -38,7 +38,7 @@ func TestPolyIntersect(t *testing.T) {
 		gogeo.Point{32.128556, 118.858888}, gogeo.Point{32.129279, 118.860555}, gogeo.Point{32.130293, 118.863462}, gogeo.Point{32.131415, 118.866881},
 		gogeo.Point{32.131921, 118.867479}, gogeo.Point{32.134093, 118.867351}, gogeo.Point{32.134057, 118.867052})
 
-	poly2 := *gogeo.NewSimplePolygon(gogeo.Point{32.117047, 118.817769}, gogeo.Point{32.125698, 118.820974}, gogeo.Point{32.129955, 118.822375},
+	poly2 := *gogeo.NewPolygonFromPois(gogeo.Point{32.117047, 118.817769}, gogeo.Point{32.125698, 118.820974}, gogeo.Point{32.129955, 118.822375},
 		gogeo.Point{32.131159, 118.822599}, gogeo.Point{32.133231, 118.822706}, gogeo.Point{32.134679, 118.822471}, gogeo.Point{32.135512, 118.821915},
 		gogeo.Point{32.136598, 118.82121}, gogeo.Point{32.137653, 118.824106}, gogeo.Point{32.138521, 118.826372}, gogeo.Point{32.139236, 118.82868},
 		gogeo.Point{32.139508, 118.830593}, gogeo.Point{32.139779, 118.832142}, gogeo.Point{32.140326, 118.834077}, gogeo.Point{32.141014, 118.836471},
@@ -71,13 +71,13 @@ func TestPolyIntersect(t *testing.T) {
 	t.Log("the relation is", gogeo.PolyRelation(poly1, poly2))
 }
 
-func TestSegmentRelation(t *testing.T) {
-	relation := gogeo.SegmentRelation(gogeo.LineSegment{gogeo.Point{32.13404, 118.867311}, gogeo.Point{32.131886, 118.867331}}, gogeo.LineSegment{gogeo.Point{32.134057, 118.867052}, gogeo.Point{32.133586, 118.863761}})
-	t.Log(gogeo.GeoToWkt(gogeo.LineString{gogeo.Point{32.13404, 118.867311}, gogeo.Point{32.131886, 118.867331}}))
+// func TestSegmentRelation(t *testing.T) {
+// 	relation := gogeo.SegmentRelation(gogeo.LineSegment{gogeo.Point{32.13404, 118.867311}, gogeo.Point{32.131886, 118.867331}}, gogeo.LineSegment{gogeo.Point{32.134057, 118.867052}, gogeo.Point{32.133586, 118.863761}})
+// 	t.Log(gogeo.GeoToWkt(gogeo.LineString{gogeo.Point{32.13404, 118.867311}, gogeo.Point{32.131886, 118.867331}}))
 
-	t.Log(gogeo.GeoToWkt(gogeo.LineString{gogeo.Point{32.134057, 118.867052}, gogeo.Point{32.133586, 118.863761}}))
-	t.Log("the relation is", relation)
+// 	t.Log(gogeo.GeoToWkt(gogeo.LineString{gogeo.Point{32.134057, 118.867052}, gogeo.Point{32.133586, 118.863761}}))
+// 	t.Log("the relation is", relation)
 
-	rela := gogeo.Intersect(32.13404, 118.867311, 32.131886, 118.867331, 32.134057, 118.867052, 32.133586, 118.863761)
-	t.Log("the relation is", rela)
-}
+// 	rela := gogeo.Intersect(32.13404, 118.867311, 32.131886, 118.867331, 32.134057, 118.867052, 32.133586, 118.863761)
+// 	t.Log("the relation is", rela)
+// }

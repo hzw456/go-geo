@@ -14,15 +14,9 @@ func NewPolygon(lrs ...LinearRing) *Polygon {
 	return &poly
 }
 
-func NewSimplePolygon(pts ...Point) *Polygon {
-	var ring LinearRing
-	for _, v := range pts {
-		ring = append(ring, v)
-	}
-	var rings []LinearRing
-	rings = append(rings, ring)
-	poly := Polygon(rings)
-	return &poly
+func NewPolygonFromPois(pts ...Point) *Polygon {
+	ring := NewLinearRing(pts...)
+	return NewPolygon(*ring)
 }
 
 func NewMultiPolygon(polys ...Polygon) *MultiPolygon {
@@ -77,9 +71,9 @@ func (p *Polygon) Verify() error {
 		}
 	}
 	//每次计算面积判断是否合法会有点复杂，考虑采用其他的方式判断
-	// if p.Area() < 0.0000000001 {
-	// 	return errors.New("polygon invaild, area equal 0")
-	// }
+	if GetArea(p) < 0.0000000001 {
+		return errors.New("polygon invaild, area equal 0")
+	}
 	if p.SelfIntersect() {
 		return errors.New("polygon self-intersect")
 	}
