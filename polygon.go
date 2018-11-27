@@ -66,7 +66,7 @@ func (p *Polygon) Verify() error {
 		return errors.New("polygon invaild, point less than 3")
 	}
 	for i := 0; i < ptCount; i++ {
-		if extring[i].X > 180.0 || extring[i].X < -180.0 || extring[i].Y > 90.0 || extring[i].Y < -90.0 {
+		if extring[i].X > 90.0 || extring[i].X < -90 || extring[i].Y > 180.0 || extring[i].Y < -180.0 {
 			return errors.New("lnglat invaild, lat[-90,90] lng[-180,180]")
 		}
 	}
