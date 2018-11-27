@@ -86,11 +86,11 @@ func (poly Polygon) SelfIntersect() bool {
 	for i := 0; i < pointCount-1; i++ {
 		srcV0 := exRing[i]
 		srcV1 := exRing[(i+1)%pointCount]
-		for j := i + 1; j < pointCount-1; j++ {
+		for j := i + 1; j < pointCount-2; j++ {
 			dstV0 := exRing[j]
-			dstV1 := exRing[(j+1)%pointCount]
+			dstV1 := exRing[j+1]
 			relation := SegmentRelation(LineSegment{srcV0, srcV1}, LineSegment{dstV0, dstV1})
-			if relation == RELA_INTERSECT || relation == RELA_TOUCH {
+			if relation == RELA_INTERSECT {
 				return true
 			}
 		}
