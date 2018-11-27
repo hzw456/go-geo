@@ -9,13 +9,13 @@ type GeometryRealation int16
 
 //定义空间关系类型
 const (
-	GEO_UNKNOWN GeometryRealation = iota
-	GEO_DISJOINT
-	GEO_CONTAIN
-	GEO_EQUAL
-	GEO_TOUCH
-	GEO_COVER
-	GEO_INTERSECT
+	RELA_UNKNOWN GeometryRealation = iota
+	RELA_DISJOINT
+	RELA_CONTAIN
+	RELA_EQUAL
+	RELA_TOUCH
+	RELA_COVER
+	RELA_INTERSECT
 )
 
 type GeometryType int16

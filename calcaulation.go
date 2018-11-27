@@ -188,7 +188,7 @@ func polyCentroid(poly Polygon) Point {
 }
 
 func PointPolygonDistance(p Point, poly Polygon) float64 {
-	if IsPointInPolygon(p, poly) == GEO_CONTAIN || IsPointInPolygon(p, poly) == GEO_TOUCH {
+	if IsPointInPolygon(p, poly) == RELA_CONTAIN || IsPointInPolygon(p, poly) == RELA_TOUCH {
 		return 0
 	}
 	var distance = INF

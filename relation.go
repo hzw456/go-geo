@@ -9,21 +9,21 @@ func SegmentRelation(seg1, seg2 LineSegment) GeometryRealation {
 	crss1 := r.Cross(*s)
 	crss2 := q_p.Cross(*r)
 	if crss1 == 0 && crss2 == 0 {
-		return GEO_TOUCH
+		return RELA_TOUCH
 	} else if crss1 == 0 && crss2 != 0 {
-		return GEO_DISJOINT
+		return RELA_DISJOINT
 	} else if crss1 != 0 {
 		//(q − p) × s / (r × s)
 		res1 := q_p.Cross(*s) / (r.Cross(*s))
 		res2 := q_p.Cross(*r) / (r.Cross(*s))
 		if res1 > 0 && res1 < 1 && res2 > 0 && res2 < 1 {
-			return GEO_INTERSECT
+			return RELA_INTERSECT
 		}
 		if (res1 == 0 || res1 == 1) && (res2 == 0 || res2 == 1) {
-			return GEO_TOUCH
+			return RELA_TOUCH
 		}
 	}
-	return GEO_DISJOINT // No collision
+	return RELA_DISJOINT // No collision
 }
 
 // func Intersect(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y float64) bool {
@@ -51,42 +51,42 @@ func SegPolyRelation(seg LineSegment, poly Polygon) GeometryRealation {
 	lr := poly.GetExteriorRing()
 	pointCount := lr.GetPointCount()
 	isPointOnBoundary := false
-	for i := 0; i < pointCount-1; i++ {
+	for i := 0; i < pointCount-2; i++ {
 		pntStart := lr[i]
-		pntEnd := lr[(i+1)%pointCount]
+		pntEnd := lr[i+1]
 		relation := SegmentRelation(LineSegment{pntStart, pntEnd}, seg)
-		if relation == GEO_INTERSECT {
-			return GEO_INTERSECT
-		} else if relation == GEO_TOUCH {
+		if relation == RELA_INTERSECT {
+			return RELA_INTERSECT
+		} else if relation == RELA_TOUCH {
 			isPointOnBoundary = true
 		}
 	}
-	flag1 := IsPointInPolygon(seg.Start, poly) == GEO_CONTAIN || IsPointInPolygon(seg.Start, poly) == GEO_TOUCH
-	flag2 := IsPointInPolygon(seg.End, poly) == GEO_CONTAIN || IsPointInPolygon(seg.End, poly) == GEO_TOUCH
+	flag1 := IsPointInPolygon(seg.Start, poly) == RELA_CONTAIN || IsPointInPolygon(seg.Start, poly) == RELA_TOUCH
+	flag2 := IsPointInPolygon(seg.End, poly) == RELA_CONTAIN || IsPointInPolygon(seg.End, poly) == RELA_TOUCH
 	//最后判断线段的首尾点在不在多边形内
 	if flag1 && flag2 && !isPointOnBoundary {
-		return GEO_CONTAIN
+		return RELA_CONTAIN
 	} else if flag1 && flag2 && isPointOnBoundary {
-		return GEO_COVER
+		return RELA_COVER
 	} else if !flag1 && !flag2 && isPointOnBoundary {
-		return GEO_TOUCH
+		return RELA_TOUCH
 	} else if !flag1 && !flag2 && !isPointOnBoundary {
-		return GEO_DISJOINT
+		return RELA_DISJOINT
 	}
-	return GEO_UNKNOWN
+	return RELA_UNKNOWN
 }
 
 func LinePolyRelation(line LineString, poly Polygon) GeometryRealation {
 	pointCount := line.GetPointCount()
-	curRelation := GEO_UNKNOWN
+	curRelation := RELA_UNKNOWN
 	for i := 0; i < pointCount-1; i++ {
 		Start := line[i]
-		End := line[i+1]
+		End := line[(i+1)%pointCount]
 		relation := SegPolyRelation(LineSegment{Start, End}, poly)
-		if relation == GEO_INTERSECT {
-			return GEO_INTERSECT
+		if relation == RELA_INTERSECT {
+			return RELA_INTERSECT
 		}
-		if curRelation == GEO_UNKNOWN || curRelation == GEO_CONTAIN || curRelation == GEO_DISJOINT {
+		if curRelation == RELA_UNKNOWN || curRelation == RELA_CONTAIN || curRelation == RELA_DISJOINT {
 			curRelation = relation
 		}
 	}
@@ -95,16 +95,16 @@ func LinePolyRelation(line LineString, poly Polygon) GeometryRealation {
 
 func LinearPolyRelation(line LinearRing, poly Polygon) GeometryRealation {
 	//对环进行打断，去掉最后一个点
-	pointCount := line.GetPointCount() - 1
-	curRelation := GEO_UNKNOWN
-	for i := 0; i < pointCount; i++ {
+	pointCount := line.GetPointCount()
+	curRelation := RELA_UNKNOWN
+	for i := 0; i < pointCount-2; i++ {
 		Start := line[i]
-		End := line[(i+1)%pointCount]
+		End := line[i+1]
 		relation := SegPolyRelation(LineSegment{Start, End}, poly)
-		if relation == GEO_INTERSECT {
-			return GEO_INTERSECT
+		if relation == RELA_INTERSECT {
+			return RELA_INTERSECT
 		}
-		if curRelation == GEO_UNKNOWN || curRelation == GEO_CONTAIN || curRelation == GEO_DISJOINT {
+		if curRelation == RELA_UNKNOWN || curRelation == RELA_CONTAIN || curRelation == RELA_DISJOINT {
 			curRelation = relation
 		}
 	}

@@ -26,7 +26,7 @@ func IsPointInPolygon(point Point, poly Polygon) GeometryRealation {
 		p2 := lr[j]
 		//在边界上的判断
 		if IsPointOnSegment(p1, p2, point) {
-			return GEO_TOUCH
+			return RELA_TOUCH
 		}
 		//射线法判断 1 min(P1.y,P2.y)<P.y<=max(P1.y,P2.y) 2 point的射线相交 http://blog.letow.top/2017/11/13/vector-cross-product-cal-intersection/
 		if (dcmp(p1.Y-point.Y) > 0) != (dcmp(p2.Y-point.Y) > 0) && dcmp(point.X-(point.Y-p1.Y)*(p1.X-p2.X)/(p1.Y-p2.Y)-p1.X) < 0 {
@@ -34,8 +34,8 @@ func IsPointInPolygon(point Point, poly Polygon) GeometryRealation {
 		}
 	}
 	if isIn {
-		return GEO_CONTAIN
+		return RELA_CONTAIN
 	} else {
-		return GEO_DISJOINT
+		return RELA_DISJOINT
 	}
 }

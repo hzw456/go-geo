@@ -90,7 +90,7 @@ func (poly Polygon) SelfIntersect() bool {
 			dstV0 := exRing[j]
 			dstV1 := exRing[(j+1)%pointCount]
 			relation := SegmentRelation(LineSegment{srcV0, srcV1}, LineSegment{dstV0, dstV1})
-			if relation == GEO_INTERSECT || relation == GEO_TOUCH {
+			if relation == RELA_INTERSECT || relation == RELA_TOUCH {
 				return true
 			}
 		}
