@@ -71,7 +71,7 @@ func (p *Polygon) Verify() error {
 		}
 	}
 	//每次计算面积判断是否合法会有点复杂，考虑采用其他的方式判断
-	if GetArea(p) < 0.0000000001 {
+	if GetArea(*p) < 0.0000000001 {
 		return errors.New("polygon invaild, area equal 0")
 	}
 	if p.SelfIntersect() {
