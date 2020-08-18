@@ -1,8 +1,10 @@
-package gogeo
+package geo
 
 const (
-	COORDPRESION = 0.00000001
-	INF          = float64(1 << 31)
+	COORDPRESION  = 0.000001
+	INF           = float64(1 << 31)
+	EARTHRADIUSMI = 6371000
+	EARTHRADIUSKM = 6371
 )
 
 type GeometryRealation int16
@@ -39,4 +41,26 @@ const (
 	STR_GEOJSON GeoStringType = iota
 	STR_WKT
 	STR_POIJSON
+)
+
+type SRID int
+
+const (
+	SRID_WGS84_GPS             SRID = 4326 //wgs84
+	SRID_WGS84_PSEUDO_MERCATOR SRID = 3824 //wgs84,Pseudo-Mercator
+
+)
+
+type GeoJSONType string
+
+const (
+	PointType              GeoJSONType = "Point"
+	MultiPointType         GeoJSONType = "MultiPoint"
+	LineStringType         GeoJSONType = "LineString"
+	MultiLineStringType    GeoJSONType = "MultiLineString"
+	PolygonType            GeoJSONType = "Polygon"
+	MultiPolygonType       GeoJSONType = "MultiPolygon"
+	GeometryCollectionType GeoJSONType = "GeometryCollection"
+	FeatureType            GeoJSONType = "Feature"
+	FeatureCollectionType  GeoJSONType = "FeatureCollection"
 )

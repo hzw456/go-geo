@@ -1,4 +1,4 @@
-package gogeo
+package geo
 
 import "errors"
 
@@ -48,6 +48,10 @@ func (poly Polygon) GetInteriorRing() []LinearRing {
 		return nil
 	}
 	return poly[1:]
+}
+
+func (poly Polygon) SetSRID(srid int) {
+	return
 }
 
 //多边形内的洞

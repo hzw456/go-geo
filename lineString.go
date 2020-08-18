@@ -1,4 +1,4 @@
-package gogeo
+package geo
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ type LineSegment struct {
 	End   Point
 }
 
-func NewLine(point ...Point) *LineString {
+func NewLineString(point ...Point) *LineString {
 	var points []Point
 	for _, point := range point {
 		points = append(points, point)
@@ -97,7 +97,7 @@ func (line *LineString) DelPoint(position int) error {
 func (line LineString) Length() float64 {
 	var dis float64
 	for i := 0; i < line.GetPointCount()-1; i++ {
-		dis += line[i].PointDistance(line[i+1])
+		dis += line[i].Distance(line[i+1])
 	}
 	return dis
 }

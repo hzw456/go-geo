@@ -1,4 +1,4 @@
-package gogeo
+package geo
 
 //https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
 //判断两个线段是否相交
@@ -158,3 +158,27 @@ func PolyRelation(poly1, poly2 Polygon) GeometryRealation {
 // 	}
 // 	return calBox(pois...)
 // }
+
+func IsPointOnLine(point Point, line LineString) bool {
+	isOn := false
+	for i := range line {
+		if i == line.GetPointCount()-1 {
+			isOn = IsPointOnSegment(line[0], line[line.GetPointCount()-1], point)
+		} else {
+			isOn = IsPointOnSegment(line[i], line[i+1], point)
+		}
+		if isOn {
+			break
+		}
+	}
+	return isOn
+}
+
+func IsPointOnSegment(p1, p2, point Point) bool {
+	//保证Q点坐标在p1,p2之间 且叉积为0
+	if (point.X-p1.X)*(p2.Y-p1.Y) == (p2.X-p1.X)*(point.Y-p1.Y) &&
+		IsPointInBox(Envelope(*NewLineString(p1, p2)), point) {
+		return true
+	}
+	return false
+}

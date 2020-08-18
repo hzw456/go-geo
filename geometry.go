@@ -1,7 +1,9 @@
-package gogeo
+package geo
 
 type Geometry interface {
-	//Equal(geo Geometry) bool
+	// SetSRID(srid int)
+	// ToWkt() string
+	// ToGeojson() string
 }
 
 type Collection []Geometry

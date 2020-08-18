@@ -1,4 +1,4 @@
-package gogeo
+package geo
 
 import (
 	"math"
@@ -104,4 +104,8 @@ func oneSideBuffer(line1 LineString, bufferDis float64) []Point {
 	endRadian = quadrantAngle + 2*math.Pi
 	bufferPoints = append(bufferPoints, getBufferCoordsByRadian(line1.GetEndPoint(), startRadian, endRadian, bufferDis)...)
 	return bufferPoints
+}
+
+func polyBufferC() {
+
 }

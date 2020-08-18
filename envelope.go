@@ -1,4 +1,4 @@
-package gogeo
+package geo
 
 type box struct {
 	minX float64
