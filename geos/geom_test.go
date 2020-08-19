@@ -1,8 +1,7 @@
-package geo
+package geos
 
 import (
 	"encoding/hex"
-	"fmt"
 	"math"
 	"strings"
 	"testing"
@@ -299,7 +298,7 @@ func TestGeometryInfo(t *testing.T) {
 
 func TestGetXY(t *testing.T) {
 	pt := CreatePoint(1, 2)
-	x, y := pt.GetXY()
+	x, y := pt.GetCoord().X, pt.GetCoord().Y
 
 	if x != 1 || y != 2 {
 		t.Errorf("Error: GetXY() error")
@@ -806,11 +805,6 @@ func TestSimplify(t *testing.T) {
 	} else {
 		t.Logf("Log: Simplify() returns %q", geom.ToWKT())
 	}
-}
-
-func TestGeoWkt(t *testing.T) {
-	g, _ := FromWkt("LINESTRING (0 0, 10 0, 10 0)")
-	fmt.Println(GeoToWkt(g))
 }
 
 func TestTopologyPreserveSimplify(t *testing.T) {

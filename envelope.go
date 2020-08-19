@@ -1,25 +1,25 @@
 package geo
 
-type box struct {
-	minX float64
-	minY float64
-	maxX float64
-	maxY float64
+type Box struct {
+	MinX float64
+	MinY float64
+	MaxX float64
+	MaxY float64
 }
 
 //在边界上也算在内部
-func IsPointInBox(b box, p Point) bool {
-	if b.minX <= p.X && p.X <= b.maxX && b.minY <= p.Y && p.Y <= b.maxY {
+func IsPointInBox(b Box, p Point) bool {
+	if b.MinX <= p.X && p.X <= b.MaxX && b.MinY <= p.Y && p.Y <= b.MaxY {
 		return true
 	}
 	return false
 }
 
-func BoxToGeo(b box) Geometry {
-	p1 := Point{b.minX, b.minY}
-	p2 := Point{b.minX, b.maxY}
-	p3 := Point{b.maxX, b.maxY}
-	p4 := Point{b.maxX, b.minY}
+func BoxToGeo(b Box) Geometry {
+	p1 := Point{b.MinX, b.MinY}
+	p2 := Point{b.MinX, b.MaxY}
+	p3 := Point{b.MaxX, b.MaxY}
+	p4 := Point{b.MaxX, b.MinY}
 
 	if p1.Equal(p3) {
 		//元素是个点
@@ -34,51 +34,7 @@ func BoxToGeo(b box) Geometry {
 	return *NewPolygon(LinearRing{p1, p2, p3, p4})
 }
 
-//求要素的外包矩形
-func Envelope(geo Geometry) box {
-	var pois []Point
-	switch geo := geo.(type) {
-	case Point:
-		return calBox(geo)
-	case MultiPoint:
-		for _, v := range geo {
-			pois = append(pois, v)
-		}
-	case LineString:
-		for _, v := range geo {
-			pois = append(pois, v)
-		}
-	case LinearRing:
-		for _, v := range geo {
-			pois = append(pois, v)
-		}
-	case MultiLineString:
-		for _, v := range geo {
-			for _, vv := range v {
-				pois = append(pois, vv)
-			}
-		}
-	case Polygon:
-		for _, v := range geo {
-			for _, vv := range v {
-				pois = append(pois, vv)
-			}
-		}
-	case MultiPolygon:
-		for _, v := range geo {
-			for _, vv := range v {
-				for _, vvv := range vv {
-					pois = append(pois, vvv)
-				}
-			}
-		}
-	default:
-		return calBox(Point{0, 0})
-	}
-	return calBox(pois...)
-}
-
-func calBox(points ...Point) box {
+func calBox(points ...Point) Box {
 	var minX, minY, maxX, maxY float64 = INF, INF, -INF, -INF
 	for _, v := range points {
 		if minX > v.X {
@@ -94,5 +50,5 @@ func calBox(points ...Point) box {
 			maxY = v.Y
 		}
 	}
-	return box{minX, minY, maxX, maxY}
+	return Box{minX, minY, maxX, maxY}
 }

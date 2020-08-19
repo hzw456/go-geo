@@ -32,14 +32,6 @@ func TestArea(t *testing.T) {
 	t.Log(gogeo.GetArea(poly))
 }
 
-func TestBuffer(t *testing.T) {
-	newPoint1 := gogeo.NewPoint(200, 200)
-	gogeo.Buffer(*newPoint1, 10)
-	t.Log(gogeo.GeoToWkt(gogeo.Buffer(*newPoint1, 10)))
-	newLine := gogeo.NewLine(gogeo.Point{0, 0}, gogeo.Point{5, 2}, gogeo.Point{7, 2}, gogeo.Point{10, 12})
-	t.Log(gogeo.GeoToWkt(gogeo.Buffer(*newLine, 5)))
-}
-
 func TestSimplify(t *testing.T) {
 	newPoint1 := gogeo.NewPoint(0, 0)
 	newPoint2 := gogeo.NewPoint(0.5, 0.5)

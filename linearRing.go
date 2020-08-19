@@ -39,3 +39,8 @@ func (line LinearRing) length() float64 {
 	}
 	return dis
 }
+
+func (line LinearRing) GetPoints() []Point {
+	return []Point(line)
+
+}

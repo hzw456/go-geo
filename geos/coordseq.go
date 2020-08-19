@@ -1,13 +1,13 @@
-package geo
+package geos
 
 import (
 	"runtime"
 )
 
 /*
-#cgo CFLAGS: -I${SRCDIR}/geos/darwin/include
-#cgo darwin LDFLAGS: -L${SRCDIR}/geos/darwin/lib -lgeos_c
-#cgo linux LDFLAGS: -L${SRCDIR}/geos/darwin/lib -lgeos_c
+#cgo CFLAGS: -I${SRCDIR}/lib/include
+#cgo darwin LDFLAGS: -L${SRCDIR}/lib/darwin -lgeos_c
+#cgo linux LDFLAGS: -L${SRCDIR}/lib/linux -lgeos_c
 #include <geos_c.h>
 
 */

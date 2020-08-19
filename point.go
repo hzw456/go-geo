@@ -14,18 +14,8 @@ type Point struct {
 	Y float64
 }
 
-type MultiPoint []Point
-
 func NewPoint(x, y float64) *Point {
 	return &Point{x, y}
-}
-
-func NewMultiPoint(pois ...Point) *MultiPoint {
-	var multiPoint MultiPoint
-	for _, v := range pois {
-		multiPoint = append(multiPoint, v)
-	}
-	return &multiPoint
 }
 
 func (p *Point) SetX(x float64) {
@@ -36,8 +26,20 @@ func (p *Point) SetY(y float64) {
 	p.Y = y
 }
 
-func (multiPoint *MultiPoint) AddPoint(p Point) {
-	*multiPoint = append(*multiPoint, p)
+func (g Point) SetSrid(srid uint64) {
+	SridMap[&g] = srid
+}
+
+func (p Point) ToWkt() string {
+	return PointToWkt(p)
+}
+
+func (p Point) BoundingBox() Box {
+	return calBox(p)
+}
+
+func (p Point) Buffer(width float64) Polygon {
+	return pointBuffer(p, width)
 }
 
 //Euclidean distance
@@ -56,14 +58,6 @@ func EuclideanDis(p1, p2 Point) float64 {
 //判断元素是否相等
 func (p1 Point) Equal(p2 Point) bool {
 	return math.Abs(p1.X-p2.X) < COORDPRESION && math.Abs(p1.Y-p2.Y) < COORDPRESION
-}
-
-func (g Point) SetSRID(srid int) {
-	SridMap[&g] = srid
-}
-
-func (g MultiPoint) SetSRID(srid int) {
-	SridMap[&g] = srid
 }
 
 func CoordDistance(p1, p2 Point) float64 {

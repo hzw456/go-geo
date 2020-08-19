@@ -1,3 +1,3 @@
 package geo
 
-var SridMap map[interface{}]int
+var SridMap map[interface{}]uint64

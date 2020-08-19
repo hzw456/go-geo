@@ -3,7 +3,6 @@ package geo
 import "errors"
 
 type Polygon []LinearRing
-type MultiPolygon []Polygon
 
 func NewPolygon(lrs ...LinearRing) *Polygon {
 	var rings []LinearRing
@@ -19,12 +18,20 @@ func NewPolygonFromPois(pts ...Point) *Polygon {
 	return NewPolygon(*ring)
 }
 
-func NewMultiPolygon(polys ...Polygon) *MultiPolygon {
-	var mulitipoly MultiPolygon
-	for _, v := range polys {
-		mulitipoly = append(mulitipoly, v)
-	}
-	return &mulitipoly
+func (g Polygon) SetSrid(srid uint64) {
+	SridMap[&g] = srid
+}
+
+func (p Polygon) ToWkt() string {
+	return PolygonToWkt(p)
+}
+
+func (p Polygon) BoundingBox() Box {
+	return calBox(p.GetExteriorPoints()...)
+}
+
+func (p Polygon) Buffer(width float64) Polygon {
+	return polyBuffer(p, width)
 }
 
 //多边形的外环
@@ -100,4 +107,8 @@ func (poly Polygon) SelfIntersect() bool {
 		}
 	}
 	return false
+}
+
+func (poly Polygon) GetExteriorPoints() []Point {
+	return poly.GetExteriorRing()
 }

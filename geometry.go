@@ -1,9 +1,11 @@
 package geo
 
 type Geometry interface {
-	// SetSRID(srid int)
-	// ToWkt() string
-	// ToGeojson() string
+	SetSrid(srid uint64)
+	// GetSRID() uint64
+	ToWkt() string
+	BoundingBox() Box
+	// Buffer(dis float64) Polygon
 }
 
 type Collection []Geometry
@@ -14,8 +16,7 @@ var (
 	_ Geometry = MultiPoint{}
 	_ Geometry = LineString{}
 	_ Geometry = MultiLineString{}
-	_ Geometry = LinearRing{}
 	_ Geometry = Polygon{}
 	_ Geometry = MultiPolygon{}
-	_ Geometry = Collection{}
+	// _ Geometry = Collection{}
 )

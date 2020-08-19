@@ -150,8 +150,6 @@ func Centroid(geo Geometry) Point {
 		return pointsCenteriod(geo...)
 	case LineString:
 		return lineCentroid(geo)
-	case LinearRing:
-		return LinearCentroid(geo)
 	case Polygon:
 		return polyCentroid(geo)
 	}

@@ -1,6 +1,8 @@
 package geo
 
-import "math"
+import (
+	"math"
+)
 
 // 二维向量：(x,y,z)
 type Vector2 struct {

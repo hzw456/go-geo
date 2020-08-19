@@ -1,8 +1,8 @@
-package geo
+package geos
 
-// type Coord struct {
-// 	X, Y float64
-// }
+type Point struct {
+	X, Y float64
+}
 
 type CoordZ struct {
 	X, Y, Z float64

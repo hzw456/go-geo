@@ -1,24 +1,13 @@
 package geo
 
 import (
+	"geo/geos"
 	"math"
 )
 
 const CirclePolygonEdgeCount = 24
 
 //点旋转法求buffer 论文：《一种GIS缓冲区矢量生成算法及实现》
-func Buffer(geometry interface{}, bufferDis float64) Polygon {
-	switch geometry.(type) {
-	case Point:
-		return pointBuffer(geometry.(Point), bufferDis)
-	case LineString:
-		return lineBuffer(geometry.(LineString), bufferDis)
-		// case Polygon:
-		// 	return polyBuffer(geometry.(Polygon), bufferDis)
-	}
-	return nil
-}
-
 func pointBuffer(p1 Point, bufferDis float64) Polygon {
 	if bufferDis < 0 {
 		return nil
@@ -106,6 +95,17 @@ func oneSideBuffer(line1 LineString, bufferDis float64) []Point {
 	return bufferPoints
 }
 
-func polyBufferC() {
+func polyBuffer(p1 Polygon, width float64) Polygon {
+	var pois []geos.Point
+	for _, poi := range p1.GetExteriorPoints() {
+		pois = append(pois, geos.Point{poi.X, poi.Y})
+	}
+	cg := geos.CreatePolygon(pois)
+	geom := cg.Buffer(width).ToGeo()
+	poly, ok := geom.(Polygon)
+	if !ok {
+		return Polygon{}
+	}
 
+	return poly
 }

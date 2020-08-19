@@ -5,11 +5,22 @@ import (
 )
 
 type LineString []Point
-type MultiLineString []LineString
 
 type LineSegment struct {
 	Start Point
 	End   Point
+}
+
+func (l LineString) SetSrid(srid uint64) {
+	SridMap[&l] = srid
+}
+
+func (l LineString) ToWkt() string {
+	return LineToWkt(l)
+}
+
+func (l LineString) BoundingBox() Box {
+	return calBox(l...)
 }
 
 func NewLineString(point ...Point) *LineString {

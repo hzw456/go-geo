@@ -177,7 +177,7 @@ func IsPointOnLine(point Point, line LineString) bool {
 func IsPointOnSegment(p1, p2, point Point) bool {
 	//保证Q点坐标在p1,p2之间 且叉积为0
 	if (point.X-p1.X)*(p2.Y-p1.Y) == (p2.X-p1.X)*(point.Y-p1.Y) &&
-		IsPointInBox(Envelope(*NewLineString(p1, p2)), point) {
+		IsPointInBox(NewLineString(p1, p2).BoundingBox(), point) {
 		return true
 	}
 	return false

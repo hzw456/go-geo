@@ -1,4 +1,4 @@
-package geo
+package geos
 
 import (
 	"regexp"
