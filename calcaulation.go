@@ -158,7 +158,7 @@ func Centroid(geo Geometry) Point {
 
 //TODO:如果线在一条直线上，需要改进算法
 func lineCentroid(line LineString) Point {
-	return LinearCentroid(*NewLinearRingFromLineString(line))
+	return LinearCentroid(*NewRingFromLine(line))
 }
 
 func LinearCentroid(ring LinearRing) Point {

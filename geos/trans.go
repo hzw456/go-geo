@@ -273,21 +273,3 @@ func (g *CGeometry) GetExteriorRing() *CGeometry {
 	c := C.GEOSGetExteriorRing_r(ctxHandle, g.c)
 	return geomFromC(c, false)
 }
-
-// interface 对应geo中的geometry
-func (g *CGeometry) ToGeo() interface{} {
-	switch g.GetType() {
-	case POINT:
-		return g.GetCoord()
-	case LINESTRING, LINEARRING, MULTIPOINT:
-		return g.GetCoords()
-	case POLYGON, MULTILINESTRING:
-		return g.GetCoordsSlice()
-	case MULTIPOLYGON:
-		return "MultiPolygon"
-	case GEOMETRYCOLLECTION:
-		return "GeometryCollection"
-	default:
-		return "Unknown"
-	}
-}

@@ -1,8 +1,9 @@
 package geo
 
 import (
-	"geo/geos"
 	"math"
+
+	"github.com/sadnessly/go-geo/geos"
 )
 
 const CirclePolygonEdgeCount = 24
@@ -101,11 +102,10 @@ func polyBuffer(p1 Polygon, width float64) Polygon {
 		pois = append(pois, geos.Point{poi.X, poi.Y})
 	}
 	cg := geos.CreatePolygon(pois)
-	geom := cg.Buffer(width).ToGeo()
-	poly, ok := geom.(Polygon)
-	if !ok {
-		return Polygon{}
+	geosm := cg.Buffer(width)
+	geom, geoType := GeosToGeo(geosm)
+	if geoType == ELEM_POLYGON {
+		return geom.(Polygon)
 	}
-
-	return poly
+	return Polygon{}
 }

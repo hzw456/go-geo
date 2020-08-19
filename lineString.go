@@ -66,7 +66,7 @@ func (line LineString) GetEndPoint() Point {
 	return line[line.GetPointCount()-1]
 }
 
-func (line *LineString) AppendPoint(point Point) error {
+func (line *LineString) Append(point Point) error {
 	*line = append(*line, point)
 	return nil
 }
@@ -77,7 +77,7 @@ func (line *LineString) SetPoint(position int, point Point) error {
 		return errors.New("line has no such position")
 	}
 	if line.GetPointCount() == position {
-		line.AppendPoint(point)
+		line.Append(point)
 	}
 	(*line)[position] = point
 	return nil
@@ -89,7 +89,7 @@ func (line *LineString) InsertPoint(position int, point Point) error {
 		return errors.New("line has no such position")
 	}
 	if line.GetPointCount() == position {
-		line.AppendPoint(point)
+		line.Append(point)
 	}
 	*line = append((*line)[:position+1], (*line)[position:]...)
 	(*line)[position] = point
@@ -129,4 +129,8 @@ func (line *LineString) Reverse() {
 	for i := 0; i < mid; i++ {
 		(*line)[i], (*line)[line.GetPointCount()-1-i] = (*line)[line.GetPointCount()-1-i], (*line)[i]
 	}
+}
+
+func (line LineString) ToRing() LinearRing {
+	return *NewRingFromLine(line)
 }

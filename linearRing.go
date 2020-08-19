@@ -8,10 +8,10 @@ func NewLinearRing(point ...Point) *LinearRing {
 		points = append(points, point)
 	}
 	line := LineString(points)
-	return NewLinearRingFromLineString(line)
+	return NewRingFromLine(line)
 }
 
-func NewLinearRingFromLineString(line LineString) *LinearRing {
+func NewRingFromLine(line LineString) *LinearRing {
 	err := line.Verify()
 	if err != nil {
 		return nil
