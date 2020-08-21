@@ -6,12 +6,12 @@ import (
 )
 
 /*
-#cgo darwin CFLAGS: -I./ -I${SRCDIR}/lib/include
-#cgo darwin CPPFLAGS: -I./ -I${SRCDIR}/lib/include
-#cgo darwin LDFLAGS: -L./ -L${SRCDIR}/lib/darwin -lgeos_c
-#cgo linux CFLAGS: -I./ -I${SRCDIR}/lib/include
-#cgo linux CPPFLAGS: -I./ -I${SRCDIR}/lib/include
-#cgo linux LDFLAGS:  -L./ -L${SRCDIR}/lib/linux -lgeos_c
+#cgo darwin CFLAGS: -I./ -I${SRCDIR}/darwin/include
+#cgo darwin CPPFLAGS: -I./ -I${SRCDIR}/darwin/include
+#cgo darwin LDFLAGS: -L./ -L${SRCDIR}/darwin/lib -lgeos_c
+#cgo linux CFLAGS: -I./ -I${SRCDIR}/linux/include
+#cgo linux CPPFLAGS: -I./ -I${SRCDIR}/linux/include
+#cgo linux LDFLAGS:  -L./ -L${SRCDIR}/linux/lib -lgeos_c
 #cgo CXXFLAGS: --std=c++11
 #include <geos_c.h>
 #include <stdlib.h>
