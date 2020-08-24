@@ -27,3 +27,7 @@ func (ml MultiLineString) BoundingBox() Box {
 	}
 	return calBox(pois...)
 }
+
+func (ml MultiLineString) TypeString() string {
+	return "MultiLineString"
+}

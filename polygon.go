@@ -34,6 +34,10 @@ func (p Polygon) Buffer(width float64) Polygon {
 	return polyBuffer(p, width)
 }
 
+func (p Polygon) TypeString() string {
+	return "Polygon"
+}
+
 //多边形的外环
 func (poly Polygon) GetExteriorRing() LinearRing {
 	if len(poly) == 0 {

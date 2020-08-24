@@ -50,17 +50,3 @@ const (
 	SRID_WGS84_PSEUDO_MERCATOR SRID = 3824 //wgs84,Pseudo-Mercator
 
 )
-
-type GeoJSONType string
-
-const (
-	PointType              GeoJSONType = "Point"
-	MultiPointType         GeoJSONType = "MultiPoint"
-	LineStringType         GeoJSONType = "LineString"
-	MultiLineStringType    GeoJSONType = "MultiLineString"
-	PolygonType            GeoJSONType = "Polygon"
-	MultiPolygonType       GeoJSONType = "MultiPolygon"
-	GeometryCollectionType GeoJSONType = "GeometryCollection"
-	FeatureType            GeoJSONType = "Feature"
-	FeatureCollectionType  GeoJSONType = "FeatureCollection"
-)

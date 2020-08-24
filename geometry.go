@@ -5,10 +5,9 @@ type Geometry interface {
 	// GetSRID() uint64
 	ToWkt() string
 	BoundingBox() Box
+	TypeString() string
 	// Buffer(dis float64) Polygon
 }
-
-type Collection []Geometry
 
 //模拟enum类型，对geometry进行枚举
 var (

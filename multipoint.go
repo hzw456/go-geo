@@ -25,3 +25,7 @@ func (mp MultiPoint) ToWkt() string {
 func (mp MultiPoint) BoundingBox() Box {
 	return calBox(mp...)
 }
+
+func (mp MultiPoint) TypeString() string {
+	return "MultiPoint"
+}
