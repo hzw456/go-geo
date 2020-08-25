@@ -4,8 +4,10 @@ type Geometry interface {
 	SetSrid(srid uint64)
 	// GetSRID() uint64
 	ToWkt() string
+	// ToGeojson() string
 	BoundingBox() Box
-	TypeString() string
+	Type() string
+	ToGeojson() ([]byte, error)
 	// Buffer(dis float64) Polygon
 }
 

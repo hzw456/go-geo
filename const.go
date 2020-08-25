@@ -43,6 +43,19 @@ const (
 	STR_POIJSON
 )
 
+type GeometryTypeStr string
+
+//定义
+const (
+	GEOMETRY_POINT           GeometryTypeStr = "Point"
+	GEOMETRY_MULTIPOINT      GeometryTypeStr = "MultiPoint"
+	GEOMETRY_LINESTRING      GeometryTypeStr = "LineString"
+	GEOMETRY_MULTILINESTRING GeometryTypeStr = "MultiLineString"
+	GEOMETRY_POLYGON         GeometryTypeStr = "Polygon"
+	GEOMETRY_MULTIPOLYGON    GeometryTypeStr = "MultiPolygon"
+	GEOMETRY_COLLECTION      GeometryTypeStr = "GeometryCollection"
+)
+
 type SRID int
 
 const (

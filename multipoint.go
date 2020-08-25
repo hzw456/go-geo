@@ -26,6 +26,6 @@ func (mp MultiPoint) BoundingBox() Box {
 	return calBox(mp...)
 }
 
-func (mp MultiPoint) TypeString() string {
-	return "MultiPoint"
+func (mp MultiPoint) GetPointSet() []Point {
+	return mp
 }

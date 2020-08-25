@@ -28,19 +28,22 @@ func NewRingFromLine(line LineString) *LinearRing {
 	}
 }
 
-func (line LinearRing) GetPointCount() int {
-	return len(line)
+func (ring LinearRing) GetPointCount() int {
+	return len(ring)
 }
 
-func (line LinearRing) length() float64 {
+func (ring LinearRing) length() float64 {
 	var dis float64
-	for i := 0; i < line.GetPointCount()-1; i++ {
-		dis += line[i].Distance(line[i+1])
+	for i := 0; i < ring.GetPointCount()-1; i++ {
+		dis += ring[i].Distance(ring[i+1])
 	}
 	return dis
 }
 
-func (line LinearRing) GetPoints() []Point {
-	return []Point(line)
+func (ring LinearRing) GetPointSet() []Point {
+	return ring
+}
 
+func (ring LinearRing) ToLineString() LineString {
+	return LineString(ring)
 }

@@ -7,68 +7,42 @@ import (
 )
 
 type Feature struct {
-	ID          interface{}            `json:"id,omitempty"`
-	Type        string                 `json:"type"`
-	BoundingBox []float64              `json:"bbox,omitempty"`
-	Geometry    geo.Geometry           `json:"geometry"`
-	Properties  map[string]interface{} `json:"properties"`
-	CRS         map[string]interface{} `json:"crs,omitempty"`
+	ID           interface{}            `json:"id,omitempty"`
+	Type         string                 `json:"type"`
+	BoundingBox  []float64              `json:"bbox,omitempty"`
+	GeometryJson *geo.GeoJson           `json:"geometry"`
+	Properties   map[string]interface{} `json:"properties"`
+	CRS          map[string]interface{} `json:"crs,omitempty"`
+	Geometry     geo.Geometry
 }
 
 // NewFeature creates and initializes a GeoJSON feature given the required attributes.
 func NewFeature(geometry geo.Geometry) *Feature {
+	gjson, _ := geometry.ToGeojson()
+	var geoj geo.GeoJson
+	json.Unmarshal(gjson, &geoj)
 	return &Feature{
-		Type:       "Feature",
-		Geometry:   geometry,
-		Properties: make(map[string]interface{}),
+		Type:         "Feature",
+		GeometryJson: &geoj,
+		Properties:   make(map[string]interface{}),
+		Geometry:     geometry,
 	}
 }
 
-// // NewPointFeature creates and initializes a GeoJSON feature with a point geometry using the given coordinate.
-// func NewPointFeature(coordinate []float64) *Feature {
-// 	return NewFeature(NewPointGeometry(coordinate))
-// }
-
-// // NewMultiPointFeature creates and initializes a GeoJSON feature with a multi-point geometry using the given coordinates.
-// func NewMultiPointFeature(coordinates ...[]float64) *Feature {
-// 	return NewFeature(NewMultiPointGeometry(coordinates...))
-// }
-
-// // NewLineStringFeature creates and initializes a GeoJSON feature with a line string geometry using the given coordinates.
-// func NewLineStringFeature(coordinates [][]float64) *Feature {
-// 	return NewFeature(NewLineStringGeometry(coordinates))
-// }
-
-// // NewMultiLineStringFeature creates and initializes a GeoJSON feature with a multi-line string geometry using the given lines.
-// func NewMultiLineStringFeature(lines ...[][]float64) *Feature {
-// 	return NewFeature(NewMultiLineStringGeometry(lines...))
-// }
-
-// // NewPolygonFeature creates and initializes a GeoJSON feature with a polygon geometry using the given polygon.
-// func NewPolygonFeature(polygon [][][]float64) *Feature {
-// 	return NewFeature(NewPolygonGeometry(polygon))
-// }
-
-// // NewMultiPolygonFeature creates and initializes a GeoJSON feature with a multi-polygon geometry using the given polygons.
-// func NewMultiPolygonFeature(polygons ...[][][]float64) *Feature {
-// 	return NewFeature(NewMultiPolygonGeometry(polygons...))
-// }
-
-// // NewCollectionFeature creates and initializes a GeoJSON feature with a geometry collection geometry using the given geometries.
-// func NewCollectionFeature(geometries ...Geometry) *Feature {
-// 	return NewFeature(NewCollectionGeometry(geometries...))
-// }
+func (f Feature) SetBoundingBox() {
+	box := f.Geometry.BoundingBox()
+	f.BoundingBox = []float64{box.MinX, box.MinY, box.MaxX, box.MaxY}
+}
 
 // MarshalJSON converts the feature object into the proper JSON.
 // It will handle the encoding of all the child geometries.
 // Alternately one can call json.Marshal(f) directly for the same result.
 func (f Feature) MarshalJSON() ([]byte, error) {
 	type feature Feature
-
 	fea := &feature{
-		ID:       f.ID,
-		Type:     "Feature",
-		Geometry: f.Geometry,
+		ID:           f.ID,
+		Type:         "Feature",
+		GeometryJson: f.GeometryJson,
 	}
 
 	if f.BoundingBox != nil && len(f.BoundingBox) != 0 {

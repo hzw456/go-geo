@@ -18,10 +18,6 @@ func (mp MultiPolygon) ToWkt() string {
 	return PolygonToWkt(mp...)
 }
 
-func (mp MultiPolygon) TypeString() string {
-	return "MultiPolygon"
-}
-
 func (mp MultiPolygon) BoundingBox() Box {
 	var pois []Point
 	for _, v := range mp {

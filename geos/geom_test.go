@@ -9,6 +9,7 @@ import (
 
 func TestGeometryTypeConsts(t *testing.T) {
 	if POINT.ToString() != "Point" {
+
 		t.Errorf("Error: GeometryType POINT define error")
 	}
 

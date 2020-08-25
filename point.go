@@ -42,10 +42,6 @@ func (p Point) Buffer(width float64) Polygon {
 	return pointBuffer(p, width)
 }
 
-func (p Point) TypeString() string {
-	return "Point"
-}
-
 //Euclidean distance
 func (p1 Point) Distance(p2 Point) float64 {
 	if SRID_WGS84_GPS == SRID_WGS84_GPS {

@@ -23,10 +23,6 @@ func (l LineString) BoundingBox() Box {
 	return calBox(l...)
 }
 
-func (l LineString) TypeString() string {
-	return "LineString"
-}
-
 func NewLineString(point ...Point) *LineString {
 	var points []Point
 	for _, point := range point {
@@ -137,4 +133,8 @@ func (line *LineString) Reverse() {
 
 func (line LineString) ToRing() LinearRing {
 	return *NewRingFromLine(line)
+}
+
+func (line LineString) GetPointSet() []Point {
+	return line
 }

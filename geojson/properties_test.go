@@ -1,183 +1,189 @@
 package geojson
 
-// func propertiesTestFeature() *Feature {
-// 	rawJSON := `
-// 	  { "type": "Feature",
-// 	    "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
-// 	    "properties": {"bool":true,"falsebool":false,"int": 1,"float64": 1.2,"string":"text"}
-// 	  }`
+import (
+	"testing"
 
-// 	f, _ := UnmarshalFeature([]byte(rawJSON))
-// 	return f
-// }
+	"github.com/sadnessly/go-geo"
+)
 
-// func TestFeatureSetProperty(t *testing.T) {
-// 	f := NewPointFeature([]float64{1, 2})
-// 	f.Properties = nil
-// 	f.SetProperty("key", "value")
+func propertiesTestFeature() *Feature {
+	rawJSON := `
+	  { "type": "Feature",
+	    "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+	    "properties": {"bool":true,"falsebool":false,"int": 1,"float64": 1.2,"string":"text"}
+	  }`
 
-// 	if f.PropertyMustString("key") != "value" {
-// 		t.Errorf("property not set correctly")
-// 	}
-// }
+	f, _ := UnmarshalFeature([]byte(rawJSON))
+	return f
+}
 
-// func TestFeaturePropertyBool(t *testing.T) {
-// 	f := propertiesTestFeature()
+func TestFeatureSetProperty(t *testing.T) {
+	f := NewFeature(geo.Point{1, 2})
+	f.Properties = nil
+	f.SetProperty("key", "value")
 
-// 	_, err := f.PropertyBool("random")
-// 	if err == nil {
-// 		t.Errorf("should return error if invalid key")
-// 	}
+	if f.PropertyMustString("key") != "value" {
+		t.Errorf("property not set correctly")
+	}
+}
 
-// 	b, err := f.PropertyBool("bool")
-// 	if err != nil {
-// 		t.Errorf("should not return error if valid key")
-// 	}
+func TestFeaturePropertyBool(t *testing.T) {
+	f := propertiesTestFeature()
 
-// 	if b != true {
-// 		t.Errorf("should return proper property")
-// 	}
-// }
+	_, err := f.PropertyBool("random")
+	if err == nil {
+		t.Errorf("should return error if invalid key")
+	}
 
-// func TestFeaturePropertyInt(t *testing.T) {
-// 	f := propertiesTestFeature()
+	b, err := f.PropertyBool("bool")
+	if err != nil {
+		t.Errorf("should not return error if valid key")
+	}
 
-// 	_, err := f.PropertyInt("random")
-// 	if err == nil {
-// 		t.Errorf("should return error if invalid key")
-// 	}
+	if b != true {
+		t.Errorf("should return proper property")
+	}
+}
 
-// 	i, err := f.PropertyInt("int")
-// 	if err != nil {
-// 		t.Errorf("should not return error if valid key")
-// 	}
+func TestFeaturePropertyInt(t *testing.T) {
+	f := propertiesTestFeature()
 
-// 	if i != 1 {
-// 		t.Errorf("should return proper property")
-// 	}
-// }
+	_, err := f.PropertyInt("random")
+	if err == nil {
+		t.Errorf("should return error if invalid key")
+	}
 
-// func TestFeaturePropertyFloat64(t *testing.T) {
-// 	f := propertiesTestFeature()
+	i, err := f.PropertyInt("int")
+	if err != nil {
+		t.Errorf("should not return error if valid key")
+	}
 
-// 	_, err := f.PropertyFloat64("random")
-// 	if err == nil {
-// 		t.Errorf("should return error if invalid key")
-// 	}
+	if i != 1 {
+		t.Errorf("should return proper property")
+	}
+}
 
-// 	i, err := f.PropertyFloat64("float64")
-// 	if err != nil {
-// 		t.Errorf("should not return error if valid key")
-// 	}
+func TestFeaturePropertyFloat64(t *testing.T) {
+	f := propertiesTestFeature()
 
-// 	if i != 1.2 {
-// 		t.Errorf("should return proper property")
-// 	}
-// }
+	_, err := f.PropertyFloat64("random")
+	if err == nil {
+		t.Errorf("should return error if invalid key")
+	}
 
-// func TestFeaturePropertyString(t *testing.T) {
-// 	f := propertiesTestFeature()
+	i, err := f.PropertyFloat64("float64")
+	if err != nil {
+		t.Errorf("should not return error if valid key")
+	}
 
-// 	_, err := f.PropertyString("random")
-// 	if err == nil {
-// 		t.Errorf("should return error if invalid key")
-// 	}
+	if i != 1.2 {
+		t.Errorf("should return proper property")
+	}
+}
 
-// 	s, err := f.PropertyString("string")
-// 	if err != nil {
-// 		t.Errorf("should not return error if valid key")
-// 	}
+func TestFeaturePropertyString(t *testing.T) {
+	f := propertiesTestFeature()
 
-// 	if s != "text" {
-// 		t.Errorf("should return proper property")
-// 	}
-// }
+	_, err := f.PropertyString("random")
+	if err == nil {
+		t.Errorf("should return error if invalid key")
+	}
 
-// func TestFeaturePropertyMustBool(t *testing.T) {
-// 	f := propertiesTestFeature()
+	s, err := f.PropertyString("string")
+	if err != nil {
+		t.Errorf("should not return error if valid key")
+	}
 
-// 	b := f.PropertyMustBool("random", true)
-// 	if b != true {
-// 		t.Errorf("should return default if property doesn't exist")
-// 	}
+	if s != "text" {
+		t.Errorf("should return proper property")
+	}
+}
 
-// 	b = f.PropertyMustBool("falsebool", true)
-// 	if b != false {
-// 		t.Errorf("should return proper property, with default")
-// 	}
+func TestFeaturePropertyMustBool(t *testing.T) {
+	f := propertiesTestFeature()
 
-// 	b = f.PropertyMustBool("falsebool")
-// 	if b != false {
-// 		t.Errorf("should return proper property, without default")
-// 	}
-// }
+	b := f.PropertyMustBool("random", true)
+	if b != true {
+		t.Errorf("should return default if property doesn't exist")
+	}
 
-// func TestFeaturePropertyMustInt(t *testing.T) {
-// 	f := propertiesTestFeature()
+	b = f.PropertyMustBool("falsebool", true)
+	if b != false {
+		t.Errorf("should return proper property, with default")
+	}
 
-// 	i := f.PropertyMustInt("random", 10)
-// 	if i != 10 {
-// 		t.Errorf("should return default if property doesn't exist")
-// 	}
+	b = f.PropertyMustBool("falsebool")
+	if b != false {
+		t.Errorf("should return proper property, without default")
+	}
+}
 
-// 	i = f.PropertyMustInt("int", 10)
-// 	if i != 1 {
-// 		t.Errorf("should return proper property, with default")
-// 	}
+func TestFeaturePropertyMustInt(t *testing.T) {
+	f := propertiesTestFeature()
 
-// 	i = f.PropertyMustInt("int")
-// 	if i != 1 {
-// 		t.Errorf("should return proper property, without default")
-// 	}
+	i := f.PropertyMustInt("random", 10)
+	if i != 10 {
+		t.Errorf("should return default if property doesn't exist")
+	}
 
-// 	f.SetProperty("true_int", 5)
-// 	i = f.PropertyMustInt("true_int")
-// 	if i != 5 {
-// 		// json decode makes all things float64,
-// 		// but manually setting will be a true int
-// 		t.Errorf("should work for true integer types")
-// 	}
+	i = f.PropertyMustInt("int", 10)
+	if i != 1 {
+		t.Errorf("should return proper property, with default")
+	}
 
-// 	i = f.PropertyMustInt("float64")
-// 	if i != 1 {
-// 		t.Errorf("should convert float64 to int")
-// 	}
-// }
+	i = f.PropertyMustInt("int")
+	if i != 1 {
+		t.Errorf("should return proper property, without default")
+	}
 
-// func TestFeaturePropertyMustFloat64(t *testing.T) {
-// 	f := propertiesTestFeature()
+	f.SetProperty("true_int", 5)
+	i = f.PropertyMustInt("true_int")
+	if i != 5 {
+		// json decode makes all things float64,
+		// but manually setting will be a true int
+		t.Errorf("should work for true integer types")
+	}
 
-// 	i := f.PropertyMustFloat64("random", 10)
-// 	if i != 10 {
-// 		t.Errorf("should return default if property doesn't exist")
-// 	}
+	i = f.PropertyMustInt("float64")
+	if i != 1 {
+		t.Errorf("should convert float64 to int")
+	}
+}
 
-// 	i = f.PropertyMustFloat64("float64", 10.0)
-// 	if i != 1.2 {
-// 		t.Errorf("should return proper property, with default")
-// 	}
+func TestFeaturePropertyMustFloat64(t *testing.T) {
+	f := propertiesTestFeature()
 
-// 	i = f.PropertyMustFloat64("float64")
-// 	if i != 1.2 {
-// 		t.Errorf("should return proper property, without default")
-// 	}
-// }
+	i := f.PropertyMustFloat64("random", 10)
+	if i != 10 {
+		t.Errorf("should return default if property doesn't exist")
+	}
 
-// func TestFeaturePropertyMustString(t *testing.T) {
-// 	f := propertiesTestFeature()
+	i = f.PropertyMustFloat64("float64", 10.0)
+	if i != 1.2 {
+		t.Errorf("should return proper property, with default")
+	}
 
-// 	s := f.PropertyMustString("random", "something")
-// 	if s != "something" {
-// 		t.Errorf("should return default if property doesn't exist")
-// 	}
+	i = f.PropertyMustFloat64("float64")
+	if i != 1.2 {
+		t.Errorf("should return proper property, without default")
+	}
+}
 
-// 	s = f.PropertyMustString("string", "something")
-// 	if s != "text" {
-// 		t.Errorf("should return proper property, with default")
-// 	}
+func TestFeaturePropertyMustString(t *testing.T) {
+	f := propertiesTestFeature()
 
-// 	s = f.PropertyMustString("string")
-// 	if s != "text" {
-// 		t.Errorf("should return proper property, without default")
-// 	}
-// }
+	s := f.PropertyMustString("random", "something")
+	if s != "something" {
+		t.Errorf("should return default if property doesn't exist")
+	}
+
+	s = f.PropertyMustString("string", "something")
+	if s != "text" {
+		t.Errorf("should return proper property, with default")
+	}
+
+	s = f.PropertyMustString("string")
+	if s != "text" {
+		t.Errorf("should return proper property, without default")
+	}
+}
