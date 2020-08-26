@@ -15,10 +15,6 @@ func (l LineString) SetSrid(srid uint64) {
 	SridMap[&l] = srid
 }
 
-func (l LineString) ToWkt() string {
-	return LineToWkt(l)
-}
-
 func (l LineString) BoundingBox() Box {
 	return calBox(l...)
 }

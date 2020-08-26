@@ -10,16 +10,12 @@ func NewMultiPoint(pois ...Point) *MultiPoint {
 	return &multiPoint
 }
 
-func (mp *MultiPoint) AddPoint(p Point) {
+func (mp *MultiPoint) Append(p Point) {
 	*mp = append(*mp, p)
 }
 
 func (mp MultiPoint) SetSrid(srid uint64) {
 	SridMap[&mp] = srid
-}
-
-func (mp MultiPoint) ToWkt() string {
-	return PointToWkt(mp...)
 }
 
 func (mp MultiPoint) BoundingBox() Box {

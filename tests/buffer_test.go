@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/sadnessly/go-geo"
@@ -19,5 +20,9 @@ func TestPolyBuffer(t *testing.T) {
 	newPoint2 := *geo.NewPoint(1, 1)
 	newPoint3 := *geo.NewPoint(2, 0)
 	poly1 := *geo.NewPolygonFromPois(newPoint1, newPoint2, newPoint3)
-	t.Log(poly1.Buffer(5).ToWkt())
+	w, err := poly1.Buffer(5).ToWkt()
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(string(w))
 }

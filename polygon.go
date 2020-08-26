@@ -22,10 +22,6 @@ func (g Polygon) SetSrid(srid uint64) {
 	SridMap[&g] = srid
 }
 
-func (p Polygon) ToWkt() string {
-	return PolygonToWkt(p)
-}
-
 func (p Polygon) BoundingBox() Box {
 	return calBox(p.GetExteriorPoints()...)
 }

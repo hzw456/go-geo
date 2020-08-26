@@ -14,10 +14,6 @@ func (mp MultiPolygon) SetSrid(srid uint64) {
 	SridMap[&mp] = srid
 }
 
-func (mp MultiPolygon) ToWkt() string {
-	return PolygonToWkt(mp...)
-}
-
 func (mp MultiPolygon) BoundingBox() Box {
 	var pois []Point
 	for _, v := range mp {

@@ -107,7 +107,6 @@ func CreatePointZ(x, y, z float64) *CGeometry {
 	if c == nil {
 		return nil
 	}
-
 	return geomFromC(c, true)
 }
 

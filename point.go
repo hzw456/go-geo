@@ -4,11 +4,6 @@ import (
 	"math"
 )
 
-// type Coord struct {
-// 	lat float64
-// 	lng float64
-// }
-
 type Point struct {
 	X float64
 	Y float64
@@ -28,10 +23,6 @@ func (p *Point) SetY(y float64) {
 
 func (g Point) SetSrid(srid uint64) {
 	SridMap[&g] = srid
-}
-
-func (p Point) ToWkt() string {
-	return PointToWkt(p)
 }
 
 func (p Point) BoundingBox() Box {

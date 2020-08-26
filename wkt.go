@@ -8,97 +8,82 @@ import (
 	"strings"
 )
 
-func PointToWkt(points ...Point) (wkt string) {
-	isMultipoint := false
-	if len(points) != 1 {
-		isMultipoint = true
-	}
-	if isMultipoint {
-		wkt = "MULTIPOINT("
-	} else {
-		wkt = "POINT"
-	}
-	for k, v := range points {
-		wkt = wkt + "("
-		wkt = wkt + fmt.Sprint(v.X) + " " + fmt.Sprint(v.Y)
-		wkt = wkt + ")"
-		if isMultipoint && k != len(points)-1 {
-			wkt = wkt + ","
-		}
-	}
-
-	if isMultipoint {
-		wkt = wkt + ")"
-	}
-	return
+func (p Point) ToWkt() ([]byte, error) {
+	return []byte(fmt.Sprintf("POINT(%s)", GeometryToWktString(p.X, p.Y))), nil
 }
 
-func LineToWkt(lines ...LineString) (wkt string) {
-	isMultiline := false
-	if len(lines) != 1 {
-		isMultiline = true
-	}
-	if isMultiline {
-		wkt = "MULTILINESTRING("
-	} else {
-		wkt = "LINESTRING"
-	}
-	for _, v := range lines {
-		wkt = wkt + "("
-		for kk, vv := range v {
-			wkt = wkt + fmt.Sprint(vv.X) + " " + fmt.Sprint(vv.Y)
-			if kk != len(v)-1 {
-				wkt = wkt + ","
-			}
-		}
-		wkt = wkt + ")"
-	}
-	if isMultiline {
-		wkt = wkt + ")"
-	}
-	return
+func (mp MultiPoint) ToWkt() ([]byte, error) {
+	return []byte(fmt.Sprintf("MULTIPOINT%s", PathToWktString(mp))), nil
 }
 
-func PolygonToWkt(polys ...Polygon) (wkt string) {
-	isMultipoly := false
-	if len(polys) != 1 {
-		isMultipoly = true
-	}
-	if isMultipoly {
-		wkt = "MULTIPOLYGON("
-	} else {
-		wkt = "POLYGON"
-	}
-	for k, poly := range polys {
-		for _, v := range poly {
-			wkt = wkt + "(("
-			for kk, vv := range v {
-				wkt = wkt + fmt.Sprint(vv.X) + " " + fmt.Sprint(vv.Y)
-				if kk != len(v)-1 {
-					wkt = wkt + ","
-				}
-			}
-			wkt = wkt + "))"
-			if isMultipoly && k != len(polys)-1 {
-				wkt = wkt + ","
-			}
-		}
-	}
+func (l LineString) ToWkt() ([]byte, error) {
+	return []byte(fmt.Sprintf("LINESTRING%s", PathToWktString(l))), nil
+}
 
-	if isMultipoly {
-		wkt = wkt + ")"
+func (ml MultiLineString) ToWkt() ([]byte, error) {
+	return []byte(fmt.Sprintf("MULTILINESTRING%s", PolygonToWktString(ml))), nil
+}
+
+func (p Polygon) ToWkt() ([]byte, error) {
+	return []byte(fmt.Sprintf("POLYGON%s", PolygonToWktString2(p))), nil
+}
+
+func (mp MultiPolygon) ToWkt() ([]byte, error) {
+	return []byte(fmt.Sprintf("MULTIPOLYGON%s", MultiPolygonToWktString(mp))), nil
+}
+
+func GeometryToWktString(x, y float64) string {
+	return strconv.FormatFloat(x, 'f', -1, 64) + " " + strconv.FormatFloat(y, 'f', -1, 64)
+}
+
+func PathToWktString(pts []Point) string {
+	var res []string
+	for _, pt := range pts {
+		w := GeometryToWktString(pt.X, pt.Y)
+		res = append(res, string(w))
 	}
-	return
+	sj := strings.Join(res, ",")
+	return "(" + sj + ")"
+}
+
+func PolygonToWktString(lines []LineString) string {
+	var res []string
+	for _, line := range lines {
+		w := PathToWktString(line)
+		res = append(res, string(w))
+	}
+	sj := strings.Join(res, ",")
+	return "(" + sj + ")"
+}
+
+func PolygonToWktString2(lines []LinearRing) string {
+	var res []string
+	for _, line := range lines {
+		w := PathToWktString(line)
+		res = append(res, string(w))
+	}
+	sj := strings.Join(res, ",")
+	return "(" + sj + ")"
+}
+
+func MultiPolygonToWktString(polys []Polygon) string {
+	var res []string
+	for _, poly := range polys {
+		w := PolygonToWktString2(poly)
+		res = append(res, string(w))
+	}
+	sj := strings.Join(res, ",")
+	return "(" + sj + ")"
 }
 
 func FromWkt(wkt string) (Geometry, error) {
 	switch {
 	case strings.HasPrefix(wkt, "POINT"):
-		return WktToPoint(wkt)
+		return PointFromWKT(wkt)
 	case strings.HasPrefix(wkt, "LINESTRING"):
-		return WktToLineString(wkt)
+		return LineStringFromWKT(wkt)
 	case strings.HasPrefix(wkt, "POLYGON"):
-		return WktToPolygon(wkt)
+		return PolygonFromWKT(wkt)
 		// case strings.HasPrefix(wkt, "MULTIPOINT"):
 		// 	return
 		// case strings.HasPrefix(wkt, "MULTILINESTRING"):
@@ -111,40 +96,30 @@ func FromWkt(wkt string) (Geometry, error) {
 	return nil, nil
 }
 
-func WktToPoint(str string) (Point, error) {
-	pts, err := wktProcess(str)
-	if err != nil || len(pts) != 1 {
+func PointFromWKT(wkt string) (Point, error) {
+	strs := strings.Split(strings.Trim(wkt, " "), " ")
+	x, err := strconv.ParseFloat(strs[1], 64)
+	if err != nil {
 		return Point{}, err
 	}
-	return pts[0], nil
-}
-
-func WktToLineString(str string) (LineString, error) {
-	pts, err := wktProcess(str)
-	if err != nil || len(pts) < 2 {
-		return LineString{}, err
+	y, err := strconv.ParseFloat(strs[0], 64)
+	if err != nil {
+		return Point{}, err
 	}
-	return *NewLineString(pts...), nil
+	return Point{x, y}, nil
 }
 
-func WktToPolygon(str string) (Polygon, error) {
-	pts, err := wktProcess(str)
-	if err != nil || len(pts) != 1 {
-		return Polygon{}, err
+func MultiPointFromWKT(wkt string) (MultiPoint, error) {
+	wkt = strings.TrimLeft(wkt, "(")
+	wkt = strings.TrimRight(wkt, ")")
+	wkt = strings.Trim(wkt, " ")
+	terms := strings.Split(wkt, ",")
+	if len(terms) != 2 {
+		return nil, errors.New("invalid wkt string")
 	}
-	return *NewPolygonFromPois(pts...), nil
-}
-
-func wktProcess(str string) ([]Point, error) {
-	re, _ := regexp.Compile(`-?(?:\.\d+|\d+(?:\.\d*)?) -?(?:\.\d+|\d+(?:\.\d*)?)`)
-	all := re.FindAllString(str, -1)
-	var pts []Point
-	for _, item := range all {
-		fmt.Println(string(item))
-		strs := strings.Split(item, " ")
-		if len(strs) != 2 {
-			return nil, errors.New("invalid wkt string")
-		}
+	var mp MultiPoint
+	for _, term := range terms {
+		strs := strings.Split(strings.TrimRight(strings.TrimLeft(term, "("), ")"), " ")
 		x, err := strconv.ParseFloat(strs[1], 64)
 		if err != nil {
 			return nil, err
@@ -153,8 +128,96 @@ func wktProcess(str string) ([]Point, error) {
 		if err != nil {
 			return nil, err
 		}
-		pt := NewPoint(x, y)
-		pts = append(pts, *pt)
+		mp.Append(Point{x, y})
 	}
-	return pts, nil
+	return mp, nil
+}
+
+func LineStringFromWKT(wkt string) (LineString, error) {
+	wkt = strings.TrimLeft(wkt, "(")
+	wkt = strings.TrimRight(wkt, ")")
+	terms := strings.Split(wkt, ",")
+	var linestring LineString
+	for _, term := range terms {
+		strs := strings.Split(strings.Trim(term, " "), " ")
+		// if prevgeopos != null {
+		// 	continue
+		// }
+		x, err := strconv.ParseFloat(strs[1], 64)
+		if err != nil {
+			return nil, err
+		}
+		y, err := strconv.ParseFloat(strs[0], 64)
+		if err != nil {
+			return nil, err
+		}
+		linestring.Append(Point{x, y})
+	}
+	return linestring, nil
+}
+
+func MultiLineStringFromWKT(wkt string) (MultiLineString, error) {
+	re := regexp.MustCompile(`(\ *[(]\ *(?:\ *(?:[0-9-.Ee]+[ ]+[0-9-.Ee]+)[, ]*\ *)*\ *[)])[, ]*`)
+	matches := re.FindStringSubmatch(wkt)
+	var ml MultiLineString
+	for _, v := range matches {
+		linestring, err := LineStringFromWKT(v)
+		if err != nil {
+			return nil, err
+		}
+		ml = append(ml, linestring)
+	}
+
+	return ml, nil
+}
+
+func PolygonFromWKT(wkt string) (Polygon, error) {
+	re := regexp.MustCompile(`(\ *[(]\ *(?:\ *(?:[0-9-.Ee]+[ ]+[0-9-.Ee]+)[, ]*\ *)*\ *[)])[, ]*`)
+	matches := re.FindStringSubmatch(wkt)
+	var poly Polygon
+	for _, v := range matches {
+		linestring, err := LineStringFromWKT(v)
+		if err != nil {
+			return nil, err
+		}
+		poly = append(poly, linestring.ToRing())
+	}
+	return poly, nil
+}
+
+func MultiPolygonFromWKT(wkt string) (MultiPolygon, error) {
+	re := regexp.MustCompile(`([(](?:\ *[(]\ *(?:\ *(?:[0-9-.]+[ ]+[0-9-.]+)[, ]*\ *)*\ *[)][, ]*)*[)])`)
+	matches := re.FindStringSubmatch(wkt)
+	var multiPoly MultiPolygon
+	for _, v := range matches {
+		polygon, err := PolygonFromWKT(v)
+		if err != nil {
+			return nil, err
+		}
+		multiPoly = append(multiPoly, polygon)
+	}
+	return multiPoly, nil
+}
+
+func WktToGeometry(wkt string) (Geometry, error) {
+	wkt = strings.Trim(wkt, " ")
+	wkt = strings.Replace(wkt, ", ", ",", -1)
+	re := regexp.MustCompile(`([A-Z]+)\s*[(]\s*(\(*.+\)*)\s*[)]`)
+	match := re.FindStringSubmatch(wkt)
+
+	switch match[1] {
+	case "MULTIPOLYGON":
+		return MultiPolygonFromWKT(match[2])
+	case "POLYGON":
+		return PolygonFromWKT(match[2])
+	case "MULTILINESTRING":
+		return MultiLineStringFromWKT(match[2])
+	case "LINESTRING":
+		return LineStringFromWKT(match[2])
+	case "MULTIPOINT":
+		return MultiPointFromWKT(match[2])
+	case "POINT":
+		return PointFromWKT(match[2])
+	}
+	return nil, errors.New("wkt format is error")
 }
