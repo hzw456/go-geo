@@ -253,6 +253,20 @@ func (g *CGeometry) GetCoordsSlice() [][]Point {
 	return coords
 }
 
+// Only support mulitiPolygon
+func (g *CGeometry) GetCoord3D() [][][]Point {
+	var coord3D [][][]Point
+	for i := 0; i < g.GetNumGeometries(); i++ {
+		var coords [][]Point
+		coords = append(coords, g.GetExteriorRing().GetCoords())
+		for ii := 0; ii < g.GetNumInteriorRings(); ii++ {
+			coords = append(coords, g.GetInteriorRingN(i).GetCoords())
+		}
+	}
+	coord3D = append(coord3D, coords)
+	return coord3D
+}
+
 // Only support LineString, LinearRing or Point
 func (g *CGeometry) GetCoordZs() []CoordZ {
 	c := C.GEOSGeom_getCoordSeq_r(ctxHandle, g.c)
@@ -275,4 +289,17 @@ func (g *CGeometry) GetInteriorRingN(n int) *CGeometry {
 func (g *CGeometry) GetExteriorRing() *CGeometry {
 	c := C.GEOSGetExteriorRing_r(ctxHandle, g.c)
 	return geomFromC(c, false)
+}
+
+func (g *CGeometry) GetNumGeometries() int {
+	return int(C.GEOSGetNumGeometries_r(ctxHandle, g.c))
+}
+
+func (g *CGeometry) GetGeometryN(n int) *CGeometry {
+	c := C.GEOSGetGeometryN_r(ctxHandle, g.c, C.int(n))
+	return geomFromC(c, false)
+}
+
+func (g *CGeometry) GetNumCoordinates() int {
+	return int(C.GEOSGetNumCoordinates_r(ctxHandle, g.c))
 }

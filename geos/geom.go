@@ -52,19 +52,6 @@ func (g *CGeometry) GetSRID() int {
 	return int(C.GEOSGetSRID_r(ctxHandle, g.c))
 }
 
-func (g *CGeometry) GetNumGeometries() int {
-	return int(C.GEOSGetNumGeometries_r(ctxHandle, g.c))
-}
-
-func (g *CGeometry) GetGeometryN(n int) *CGeometry {
-	c := C.GEOSGetGeometryN_r(ctxHandle, g.c, C.int(n))
-	return geomFromC(c, false)
-}
-
-func (g *CGeometry) GetNumCoordinates() int {
-	return int(C.GEOSGetNumCoordinates_r(ctxHandle, g.c))
-}
-
 func (g *CGeometry) Area() float64 {
 	var val C.double
 	C.GEOSArea_r(ctxHandle, g.c, &val)

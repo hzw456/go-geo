@@ -52,3 +52,14 @@ func exactLinesFromPoi(g *geos.CGeometry) (lines []LineString) {
 	}
 	return
 }
+
+func exactPolysFromPoi(g *geos.CGeometry) (lines []LineString) {
+	for _, coords := range g.GetCoord3D() {
+		ls := NewLineString()
+		for _, coord := range coords {
+			ls.Append(Point{coord.X, coord.Y})
+		}
+		lines = append(lines, *ls)
+	}
+	return
+}
