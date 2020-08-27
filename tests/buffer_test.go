@@ -26,3 +26,15 @@ func TestPolyBuffer(t *testing.T) {
 	}
 	fmt.Println(string(w))
 }
+
+func TestPolyBuffer2(t *testing.T) {
+	newPoint1 := *geo.NewPointZ(0, 0, 0)
+	newPoint2 := *geo.NewPointZ(1, 1, 0)
+	newPoint3 := *geo.NewPointZ(2, 0, 0)
+	poly1 := *geo.NewPolygonZFromPois(newPoint1, newPoint2, newPoint3)
+	w, err := poly1.ToGeojson()
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(string(w))
+}

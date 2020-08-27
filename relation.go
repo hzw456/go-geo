@@ -116,49 +116,6 @@ func PolyRelation(poly1, poly2 Polygon) GeometryRealation {
 	return LinearPolyRelation(lr, poly2)
 }
 
-// func Relation(geo1, geo2 Geometry) bool {
-// 	var pois []Point
-// 	switch geo := geo1.(type) {
-// 	case Point:
-// 		return calBox(geo)
-// 	case MultiPoint:
-// 		for _, v := range geo {
-// 			pois = append(pois, v)
-// 		}
-// 	case LineString:
-// 		for _, v := range geo {
-// 			pois = append(pois, v)
-// 		}
-// 	case LinearRing:
-// 		for _, v := range geo {
-// 			pois = append(pois, v)
-// 		}
-// 	case MultiLineString:
-// 		for _, v := range geo {
-// 			for _, vv := range v {
-// 				pois = append(pois, vv)
-// 			}
-// 		}
-// 	case Polygon:
-// 		for _, v := range geo {
-// 			for _, vv := range v {
-// 				pois = append(pois, vv)
-// 			}
-// 		}
-// 	case MultiPolygon:
-// 		for _, v := range geo {
-// 			for _, vv := range v {
-// 				for _, vvv := range vv {
-// 					pois = append(pois, vvv)
-// 				}
-// 			}
-// 		}
-// 	default:
-// 		return calBox(Point{0, 0})
-// 	}
-// 	return calBox(pois...)
-// }
-
 func IsPointOnLine(point Point, line LineString) bool {
 	isOn := false
 	for i := range line {

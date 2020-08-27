@@ -24,10 +24,32 @@ func (p Point) ToGeojson() ([]byte, error) {
 	return json.Marshal(geoj)
 }
 
+func (p PointZ) ToGeojson() ([]byte, error) {
+	var geoj GeoJson
+	geoj.Type = p.Type()
+	geom, err := ConvertPoiZ(p)
+	if err != nil {
+		return nil, err
+	}
+	geoj.Coordinates = geom
+	return json.Marshal(geoj)
+}
+
 func (mp MultiPoint) ToGeojson() ([]byte, error) {
 	var geoj GeoJson
 	geoj.Type = mp.Type()
 	geom, err := ConvertPoiSet(mp)
+	if err != nil {
+		return nil, err
+	}
+	geoj.Coordinates = geom
+	return json.Marshal(geoj)
+}
+
+func (mp MultiPointZ) ToGeojson() ([]byte, error) {
+	var geoj GeoJson
+	geoj.Type = mp.Type()
+	geom, err := ConvertPoiZSet(mp)
 	if err != nil {
 		return nil, err
 	}
@@ -46,10 +68,32 @@ func (l LineString) ToGeojson() ([]byte, error) {
 	return json.Marshal(geoj)
 }
 
+func (l LineStringZ) ToGeojson() ([]byte, error) {
+	var geoj GeoJson
+	geoj.Type = l.Type()
+	geom, err := ConvertPoiZSet(l)
+	if err != nil {
+		return nil, err
+	}
+	geoj.Coordinates = geom
+	return json.Marshal(geoj)
+}
+
 func (ml MultiLineString) ToGeojson() ([]byte, error) {
 	var geoj GeoJson
 	geoj.Type = ml.Type()
 	geom, err := ConvertPathSet(ml)
+	if err != nil {
+		return nil, err
+	}
+	geoj.Coordinates = geom
+	return json.Marshal(geoj)
+}
+
+func (ml MultiLineStringZ) ToGeojson() ([]byte, error) {
+	var geoj GeoJson
+	geoj.Type = ml.Type()
+	geom, err := ConvertPathZSet(ml)
 	if err != nil {
 		return nil, err
 	}
@@ -68,10 +112,32 @@ func (p Polygon) ToGeojson() ([]byte, error) {
 	return json.Marshal(geoj)
 }
 
+func (p PolygonZ) ToGeojson() ([]byte, error) {
+	var geoj GeoJson
+	geoj.Type = p.Type()
+	geom, err := ConvertPathZSet(p)
+	if err != nil {
+		return nil, err
+	}
+	geoj.Coordinates = geom
+	return json.Marshal(geoj)
+}
+
 func (mp MultiPolygon) ToGeojson() ([]byte, error) {
 	var geoj GeoJson
 	geoj.Type = mp.Type()
 	geom, err := ConvertPolygonSet(mp)
+	if err != nil {
+		return nil, err
+	}
+	geoj.Coordinates = geom
+	return json.Marshal(geoj)
+}
+
+func (mp MultiPolygonZ) ToGeojson() ([]byte, error) {
+	var geoj GeoJson
+	geoj.Type = mp.Type()
+	geom, err := ConvertPolygonZSet(mp)
 	if err != nil {
 		return nil, err
 	}
@@ -85,6 +151,10 @@ func (mp MultiPolygon) ToGeojson() ([]byte, error) {
 
 func ConvertPoi(p Point) ([]float64, error) {
 	return []float64{p.X, p.Y}, nil
+}
+
+func ConvertPoiZ(p PointZ) ([]float64, error) {
+	return []float64{p.X, p.Y, p.Z}, nil
 }
 
 // only linestring and multipoint
@@ -101,6 +171,28 @@ func ConvertPoiSet(g Geometry) ([][]float64, error) {
 	var interface2D [][]float64
 	for _, pt := range pts {
 		res, err := ConvertPoi(pt)
+		if err != nil {
+			return nil, err
+		}
+		interface2D = append(interface2D, res)
+	}
+	return interface2D, nil
+}
+
+// only linestring and multipoint
+func ConvertPoiZSet(g GeometryZ) ([][]float64, error) {
+	var pts []PointZ
+	switch g := g.(type) {
+	case LineStringZ:
+		pts = g.GetPointSet()
+	case MultiPointZ:
+		pts = g.GetPointSet()
+	default:
+		return nil, errors.New("could not parsing geometry besides linesting and multipoint")
+	}
+	var interface2D [][]float64
+	for _, pt := range pts {
+		res, err := ConvertPoiZ(pt)
 		if err != nil {
 			return nil, err
 		}
@@ -135,6 +227,32 @@ func ConvertPathSet(g Geometry) ([][][]float64, error) {
 	return interface3D, nil
 }
 
+// only multilinestring and polygon
+func ConvertPathZSet(g GeometryZ) ([][][]float64, error) {
+	var lines []LineStringZ
+	switch g := g.(type) {
+	case MultiLineStringZ:
+		for _, line := range g {
+			lines = append(lines, line)
+		}
+	case PolygonZ:
+		for _, ring := range g {
+			lines = append(lines, ring.ToLineString())
+		}
+	default:
+		return nil, errors.New("could not parsing geometry besides multilinestring and polygon")
+	}
+	var interface3D [][][]float64
+	for _, line := range lines {
+		res, err := ConvertPoiZSet(line)
+		if err != nil {
+			return nil, err
+		}
+		interface3D = append(interface3D, res)
+	}
+	return interface3D, nil
+}
+
 //only multipolygon
 func ConvertPolygonSet(g Geometry) ([][][][]float64, error) {
 	var polys []Polygon
@@ -149,6 +267,28 @@ func ConvertPolygonSet(g Geometry) ([][][][]float64, error) {
 	var interface4D [][][][]float64
 	for _, poly := range polys {
 		res, err := ConvertPathSet(poly)
+		if err != nil {
+			return nil, err
+		}
+		interface4D = append(interface4D, res)
+	}
+	return interface4D, nil
+}
+
+//only multipolygon
+func ConvertPolygonZSet(g GeometryZ) ([][][][]float64, error) {
+	var polys []PolygonZ
+	switch g := g.(type) {
+	case MultiPolygonZ:
+		for _, poly := range g {
+			polys = append(polys, poly)
+		}
+	default:
+		return nil, errors.New("could not parsing geometry besides multipolygon")
+	}
+	var interface4D [][][][]float64
+	for _, poly := range polys {
+		res, err := ConvertPathZSet(poly)
 		if err != nil {
 			return nil, err
 		}

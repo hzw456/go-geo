@@ -11,10 +11,6 @@ type LineSegment struct {
 	End   Point
 }
 
-func (l LineString) SetSrid(srid uint64) {
-	SridMap[&l] = srid
-}
-
 func (l LineString) BoundingBox() Box {
 	return calBox(l...)
 }
@@ -46,8 +42,7 @@ func (line LineString) Verify() error {
 
 //取首点
 func (line LineString) GetFirstPoint() Point {
-	err := line.Verify()
-	if err != nil {
+	if len(line) < 2 {
 		return Point{0, 0}
 	}
 	return line[0]
@@ -55,8 +50,7 @@ func (line LineString) GetFirstPoint() Point {
 
 //取尾点
 func (line LineString) GetEndPoint() Point {
-	err := line.Verify()
-	if err != nil {
+	if len(line) < 2 {
 		return Point{0, 0}
 	}
 	return line[line.GetPointCount()-1]

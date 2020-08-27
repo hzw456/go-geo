@@ -1,6 +1,7 @@
 package geo
 
 type MultiPoint []Point
+type MultiPointZ []PointZ
 
 func NewMultiPoint(pois ...Point) *MultiPoint {
 	var multiPoint MultiPoint

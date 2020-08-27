@@ -84,12 +84,12 @@ func FromWkt(wkt string) (Geometry, error) {
 		return LineStringFromWKT(wkt)
 	case strings.HasPrefix(wkt, "POLYGON"):
 		return PolygonFromWKT(wkt)
-		// case strings.HasPrefix(wkt, "MULTIPOINT"):
-		// 	return
-		// case strings.HasPrefix(wkt, "MULTILINESTRING"):
-		// 	return
-		// case strings.HasPrefix(wkt, "MULITIPOLYGON"):
-		// 	return
+	case strings.HasPrefix(wkt, "MULTIPOINT"):
+		return MultiPointFromWKT(wkt)
+	case strings.HasPrefix(wkt, "MULTILINESTRING"):
+		return MultiLineStringFromWKT(wkt)
+	case strings.HasPrefix(wkt, "MULITIPOLYGON"):
+		return MultiPointFromWKT(wkt)
 		// case strings.HasPrefix(wkt, "GEOMETRYCOLLECTION"):
 		// 	return
 	}

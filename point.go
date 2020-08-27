@@ -21,10 +21,6 @@ func (p *Point) SetY(y float64) {
 	p.Y = y
 }
 
-func (g Point) SetSrid(srid uint64) {
-	SridMap[&g] = srid
-}
-
 func (p Point) BoundingBox() Box {
 	return calBox(p)
 }
