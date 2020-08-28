@@ -3,7 +3,7 @@ package geo
 import (
 	"math"
 
-	"github.com/sadnessly/go-geo/geos"
+	"github.com/hzw456/go-geo/geos"
 )
 
 const CirclePolygonEdgeCount = 24

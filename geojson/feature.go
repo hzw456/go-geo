@@ -3,7 +3,7 @@ package geojson
 import (
 	"encoding/json"
 
-	geo "github.com/sadnessly/go-geo"
+	geo "github.com/hzw456/go-geo"
 )
 
 type Feature struct {

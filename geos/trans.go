@@ -262,8 +262,8 @@ func (g *CGeometry) GetCoord3D() [][][]Point {
 		for ii := 0; ii < g.GetNumInteriorRings(); ii++ {
 			coords = append(coords, g.GetInteriorRingN(i).GetCoords())
 		}
+		coord3D = append(coord3D, coords)
 	}
-	coord3D = append(coord3D, coords)
 	return coord3D
 }
 

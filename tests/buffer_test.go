@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/sadnessly/go-geo"
+	"github.com/hzw456/go-geo"
 )
 
 // func TestPointBuffer(t *testing.T) {

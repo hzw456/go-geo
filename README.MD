@@ -21,7 +21,7 @@ Package go-geo is a general golang libary work for gis, it provide several basic
 
 # Install #
 Use go get to install this package.
-go get -u github.com/sadnessly/go-geo
+go get -u github.com/hzw456/go-geo
 
 # Usage #
 

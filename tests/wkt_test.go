@@ -3,7 +3,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/sadnessly/go-geo"
+	"github.com/hzw456/go-geo"
 )
 
 func TestInpolygon(t *testing.T) {
