@@ -103,8 +103,8 @@ func polyBuffer(p1 Polygon, width float64) Polygon {
 	}
 	cg := geos.CreatePolygon(pois)
 	geosm := cg.Buffer(width)
-	geom, geoType := GeosToGeo(geosm)
-	if geoType == ELEM_POLYGON {
+	geom := GeosToGeo(geosm)
+	if geom != nil && geom.Type() == GEOMETRY_POLYGON {
 		return geom.(Polygon)
 	}
 	return Polygon{}

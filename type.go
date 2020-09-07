@@ -1,53 +1,53 @@
 package geo
 
-func (p Point) Type() string {
-	return "Point"
+func (p Point) Type() GeometryType {
+	return GEOMETRY_POINT
 }
 
-func (p PointZ) Type() string {
-	return "Point"
+func (p PointZ) Type() GeometryType {
+	return GEOMETRY_POINTZ
 }
 
-func (mp MultiPoint) Type() string {
-	return "MultiPoint"
+func (mp MultiPoint) Type() GeometryType {
+	return GEOMETRY_MULTIPOINT
 }
 
-func (mp MultiPointZ) Type() string {
-	return "MultiPoint"
+func (mp MultiPointZ) Type() GeometryType {
+	return GEOMETRY_MULTIPOINTZ
 }
 
-func (l LineString) Type() string {
-	return "LineString"
+func (l LineString) Type() GeometryType {
+	return GEOMETRY_LINESTRING
 }
 
-func (l LineStringZ) Type() string {
-	return "LineString"
+func (l LineStringZ) Type() GeometryType {
+	return GEOMETRY_LINESTRINGZ
 }
 
-func (ml MultiLineString) Type() string {
-	return "MultiLineString"
+func (ml MultiLineString) Type() GeometryType {
+	return GEOMETRY_MULTILINESTRING
 }
 
-func (ml MultiLineStringZ) Type() string {
-	return "MultiLineString"
+func (ml MultiLineStringZ) Type() GeometryType {
+	return GEOMETRY_MULTILINESTRINGZ
 }
 
-func (mp MultiPolygon) Type() string {
-	return "MultiPolygon"
+func (mp MultiPolygon) Type() GeometryType {
+	return GEOMETRY_MULTIPOLYGON
 }
 
-func (mp MultiPolygonZ) Type() string {
-	return "MultiPolygon"
+func (mp MultiPolygonZ) Type() GeometryType {
+	return GEOMETRY_MULTIPOLYGONZ
 }
 
-func (p Polygon) Type() string {
-	return "Polygon"
+func (p Polygon) Type() GeometryType {
+	return GEOMETRY_POLYGON
 }
 
-func (p PolygonZ) Type() string {
-	return "Polygon"
+func (p PolygonZ) Type() GeometryType {
+	return GEOMETRY_POLYGONZ
 }
 
-func (c Collection) Type() string {
-	return "GeometryCollection"
+func (c Collection) Type() GeometryType {
+	return GEOMETRY_COLLECTION
 }

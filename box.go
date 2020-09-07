@@ -1,3 +1,9 @@
+/*
+ * @Author: haozhiwei@baidu.com
+ * @Date: 2020-08-27 10:51:19
+ * @LastEditors: haozhiwei@baidu.com
+ * @LastEditTime: 2020-09-04 18:03:12
+ */
 package geo
 
 type Box struct {
@@ -8,7 +14,7 @@ type Box struct {
 }
 
 //在边界上也算在内部
-func IsPointInBox(b Box, p Point) bool {
+func IsPointInBox(b *Box, p Point) bool {
 	if b.MinX <= p.X && p.X <= b.MaxX && b.MinY <= p.Y && p.Y <= b.MaxY {
 		return true
 	}
@@ -34,7 +40,7 @@ func BoxToGeo(b Box) Geometry {
 	return *NewPolygon(LinearRing{p1, p2, p3, p4})
 }
 
-func calBox(points ...Point) Box {
+func calBox(points ...Point) *Box {
 	var minX, minY, maxX, maxY float64 = INF, INF, -INF, -INF
 	for _, v := range points {
 		if minX > v.X {
@@ -50,5 +56,37 @@ func calBox(points ...Point) Box {
 			maxY = v.Y
 		}
 	}
-	return Box{minX, minY, maxX, maxY}
+	return &Box{minX, minY, maxX, maxY}
+}
+
+func BoundingBox(geom Geometry) *Box {
+	switch geom := geom.(type) {
+	case Point:
+		return calBox(geom)
+	case MultiPoint:
+		return calBox(geom...)
+	case LineString:
+		return calBox(geom...)
+	case MultiLineString:
+		var pois []Point
+		for _, v := range geom {
+			for _, vv := range v {
+				pois = append(pois, vv)
+			}
+		}
+		return calBox(pois...)
+	case Polygon:
+		return calBox(geom.GetExteriorPoints()...)
+	case MultiPolygon:
+		var pois []Point
+		for _, v := range geom {
+			for _, vv := range v {
+				for _, vvv := range vv {
+					pois = append(pois, vvv)
+				}
+			}
+		}
+		return calBox(pois...)
+	}
+	return &Box{}
 }

@@ -19,10 +19,6 @@ func (mp MultiPoint) SetSrid(srid uint64) {
 	SridMap[&mp] = srid
 }
 
-func (mp MultiPoint) BoundingBox() Box {
-	return calBox(mp...)
-}
-
 func (mp MultiPoint) GetPointSet() []Point {
 	return mp
 }

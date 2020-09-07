@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/hzw456/go-geo"
+	"github.com/hzw456/go-geo/geojson"
+	"github.com/hzw456/go-geo/wkt"
 )
 
 // func TestPointBuffer(t *testing.T) {
@@ -20,10 +22,7 @@ func TestPolyBuffer(t *testing.T) {
 	newPoint2 := *geo.NewPoint(1, 1)
 	newPoint3 := *geo.NewPoint(2, 0)
 	poly1 := *geo.NewPolygonFromPois(newPoint1, newPoint2, newPoint3)
-	w, err := poly1.Buffer(5).ToWkt()
-	if err != nil {
-		t.Error(err)
-	}
+	w := wkt.Encode(poly1.Buffer(5))
 	fmt.Println(string(w))
 }
 
@@ -32,7 +31,7 @@ func TestPolyBuffer2(t *testing.T) {
 	newPoint2 := *geo.NewPointZ(1, 1, 0)
 	newPoint3 := *geo.NewPointZ(2, 0, 0)
 	poly1 := *geo.NewPolygonZFromPois(newPoint1, newPoint2, newPoint3)
-	w, err := poly1.ToGeojson()
+	w, err := geojson.MarshalGeo(poly1)
 	if err != nil {
 		t.Error(err)
 	}

@@ -20,21 +20,6 @@ const (
 	RELA_INTERSECT
 )
 
-type GeometryType int16
-
-//定义
-const (
-	ELEM_POINT GeometryType = iota
-	ELEM_MULTIPOINT
-	ELEM_LINESTRING
-	ELEM_MULTILINESTRING
-	ELEM_LINEARRING
-	ELEM_POLYGON
-	ELEM_MULTIPOLYGON
-	ELEM_COLLECTION
-	ELEM_UNKNOWN
-)
-
 type GeoStringType int16
 
 const (
@@ -43,17 +28,24 @@ const (
 	STR_POIJSON
 )
 
-type GeometryTypeStr string
+type GeometryType string
 
 //定义
 const (
-	GEOMETRY_POINT           GeometryTypeStr = "Point"
-	GEOMETRY_MULTIPOINT      GeometryTypeStr = "MultiPoint"
-	GEOMETRY_LINESTRING      GeometryTypeStr = "LineString"
-	GEOMETRY_MULTILINESTRING GeometryTypeStr = "MultiLineString"
-	GEOMETRY_POLYGON         GeometryTypeStr = "Polygon"
-	GEOMETRY_MULTIPOLYGON    GeometryTypeStr = "MultiPolygon"
-	GEOMETRY_COLLECTION      GeometryTypeStr = "GeometryCollection"
+	GEOMETRY_POINT            GeometryType = "Point"
+	GEOMETRY_MULTIPOINT       GeometryType = "MultiPoint"
+	GEOMETRY_LINESTRING       GeometryType = "LineString"
+	GEOMETRY_MULTILINESTRING  GeometryType = "MultiLineString"
+	GEOMETRY_POLYGON          GeometryType = "Polygon"
+	GEOMETRY_MULTIPOLYGON     GeometryType = "MultiPolygon"
+	GEOMETRY_COLLECTION       GeometryType = "GeometryCollection"
+	GEOMETRY_POINTZ           GeometryType = "PointZ"
+	GEOMETRY_MULTIPOINTZ      GeometryType = "MultiPointZ"
+	GEOMETRY_LINESTRINGZ      GeometryType = "LineStringZ"
+	GEOMETRY_MULTILINESTRINGZ GeometryType = "MultiLineStringZ"
+	GEOMETRY_POLYGONZ         GeometryType = "PolygonZ"
+	GEOMETRY_MULTIPOLYGONZ    GeometryType = "MultiPolygonZ"
+	GEOMETRY_COLLECTIONZ      GeometryType = "GeometryCollectionZ"
 )
 
 type SRID int

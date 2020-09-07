@@ -21,10 +21,6 @@ func (p *Point) SetY(y float64) {
 	p.Y = y
 }
 
-func (p Point) BoundingBox() Box {
-	return calBox(p)
-}
-
 func (p Point) Buffer(width float64) Polygon {
 	return pointBuffer(p, width)
 }

@@ -3,12 +3,12 @@ package geo
 import "github.com/hzw456/go-geo/geos"
 
 // interface 对应geo中的geometry
-func GeosToGeo(g *geos.CGeometry) (Geometry, GeometryType) {
+func GeosToGeo(g *geos.CGeometry) Geometry {
 	switch g.GetType() {
 	case geos.POINT:
-		return Point{g.GetCoord().X, g.GetCoord().Y}, ELEM_POINT
+		return Point{g.GetCoord().X, g.GetCoord().Y}
 	case geos.LINESTRING:
-		return *NewLineString(exactPtsFromPoi(g)...), ELEM_LINESTRING
+		return *NewLineString(exactPtsFromPoi(g)...)
 	// case geos.LINEARRING:
 	// 	var pts []Point
 	// 	for _, v := range g.GetCoords() {
@@ -16,24 +16,24 @@ func GeosToGeo(g *geos.CGeometry) (Geometry, GeometryType) {
 	// 	}
 	// 	return *NewLinearRing(pts...)
 	case geos.MULTIPOINT:
-		return *NewMultiPoint(exactPtsFromPoi(g)...), ELEM_MULTIPOINT
+		return *NewMultiPoint(exactPtsFromPoi(g)...)
 	case geos.POLYGON:
 		lines := exactLinesFromPoi(g)
 		poly := Polygon{}
 		for _, line := range lines {
 			poly = append(poly, line.ToRing())
 		}
-		return poly, ELEM_POLYGON
+		return poly
 	case geos.MULTILINESTRING:
 		lines := exactLinesFromPoi(g)
-		return *NewMultiLineString(lines...), ELEM_MULTILINESTRING
+		return *NewMultiLineString(lines...)
 	case geos.MULTIPOLYGON:
 		polys := exactPolysFromPoi(g)
-		return *NewMultiPolygon(polys...), ELEM_MULTIPOLYGON
+		return *NewMultiPolygon(polys...)
 		// case geos.GEOMETRYCOLLECTION:
 		// 	return "GeometryCollection", ELEM_COLLECTION
 	}
-	return nil, ELEM_UNKNOWN
+	return nil
 }
 
 func exactPtsFromPoi(g *geos.CGeometry) (pts []Point) {

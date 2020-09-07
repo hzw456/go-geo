@@ -11,10 +11,6 @@ type LineSegment struct {
 	End   Point
 }
 
-func (l LineString) BoundingBox() Box {
-	return calBox(l...)
-}
-
 func NewLineString(point ...Point) *LineString {
 	var points []Point
 	for _, point := range point {

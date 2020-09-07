@@ -22,10 +22,6 @@ func (g Polygon) SetSrid(srid uint64) {
 	SridMap[&g] = srid
 }
 
-func (p Polygon) BoundingBox() Box {
-	return calBox(p.GetExteriorPoints()...)
-}
-
 func (p Polygon) Buffer(width float64) Polygon {
 	return polyBuffer(p, width)
 }

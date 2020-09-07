@@ -10,7 +10,7 @@ type Feature struct {
 	ID           interface{}            `json:"id,omitempty"`
 	Type         string                 `json:"type"`
 	BoundingBox  []float64              `json:"bbox,omitempty"`
-	GeometryJson *geo.GeoJson           `json:"geometry"`
+	GeometryJson *GeoJson               `json:"geometry"`
 	Properties   map[string]interface{} `json:"properties"`
 	CRS          map[string]interface{} `json:"crs,omitempty"`
 	Geometry     geo.Geometry
@@ -18,8 +18,8 @@ type Feature struct {
 
 // NewFeature creates and initializes a GeoJSON feature given the required attributes.
 func NewFeature(geometry geo.Geometry) *Feature {
-	gjson, _ := geometry.ToGeojson()
-	var geoj geo.GeoJson
+	gjson, _ := MarshalGeo(geometry)
+	var geoj GeoJson
 	json.Unmarshal(gjson, &geoj)
 	return &Feature{
 		Type:         "Feature",
@@ -30,7 +30,7 @@ func NewFeature(geometry geo.Geometry) *Feature {
 }
 
 func (f Feature) SetBoundingBox() {
-	box := f.Geometry.BoundingBox()
+	box := geo.BoundingBox(f.Geometry)
 	f.BoundingBox = []float64{box.MinX, box.MinY, box.MaxX, box.MaxY}
 }
 

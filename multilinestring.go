@@ -1,3 +1,9 @@
+/*
+ * @Author: haozhiwei@baidu.com
+ * @Date: 2020-08-27 10:51:20
+ * @LastEditors: haozhiwei@baidu.com
+ * @LastEditTime: 2020-09-04 17:54:15
+ */
 package geo
 
 type MultiLineString []LineString
@@ -12,14 +18,4 @@ func NewMultiLineString(ls ...LineString) *MultiLineString {
 
 func (l MultiLineString) SetSrid(srid uint64) {
 	SridMap[&l] = srid
-}
-
-func (ml MultiLineString) BoundingBox() Box {
-	var pois []Point
-	for _, v := range ml {
-		for _, vv := range v {
-			pois = append(pois, vv)
-		}
-	}
-	return calBox(pois...)
 }
