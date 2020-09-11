@@ -84,3 +84,13 @@ func BoundingBox(geom Geometry) *Box {
 	}
 	return &Box{}
 }
+
+func (b1 *Box) Intersect(b2 *Box) bool {
+	if b1 == nil || b2 == nil {
+		return false
+	}
+	if b1.MaxX < b2.MinX || b1.MinX > b2.MaxX || b1.MinY > b2.MaxY || b1.MaxY < b2.MinY {
+		return false
+	}
+	return true
+}

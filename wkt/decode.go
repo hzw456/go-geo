@@ -34,9 +34,6 @@ func MultiPointFromWKT(wkt string) (geo.Geometry, error) {
 	wkt = strings.TrimRight(wkt, ")")
 	wkt = strings.Trim(wkt, " ")
 	terms := strings.Split(wkt, ",")
-	if len(terms) != 2 {
-		return nil, errors.New("invalid wkt string")
-	}
 	var mp geo.MultiPoint
 	var mpz geo.MultiPointZ
 	for _, term := range terms {
@@ -49,7 +46,7 @@ func MultiPointFromWKT(wkt string) (geo.Geometry, error) {
 		if err != nil {
 			return nil, err
 		}
-		if len(terms) == 3 {
+		if len(strs) == 3 {
 			z, err := strconv.ParseFloat(strs[2], 64)
 			if err != nil {
 				return geo.Point{}, err
@@ -76,21 +73,21 @@ func LineStringFromWKT(wkt string) (geo.Geometry, error) {
 	var linestringZ geo.LineStringZ
 	for _, term := range terms {
 		strs := strings.Split(strings.Trim(term, " "), " ")
-		x, err := strconv.ParseFloat(strs[1], 64)
+		x, err := strconv.ParseFloat(strs[0], 64)
 		if err != nil {
 			return nil, err
 		}
-		y, err := strconv.ParseFloat(strs[0], 64)
+		y, err := strconv.ParseFloat(strs[1], 64)
 		if err != nil {
 			return nil, err
 		}
-		if len(terms) == 3 {
+		if len(strs) == 3 {
 			z, err := strconv.ParseFloat(strs[2], 64)
 			if err != nil {
 				return geo.LineStringZ{}, err
 			}
 			linestringZ.Append(geo.PointZ{x, y, z})
-		} else if len(terms) == 2 {
+		} else if len(strs) == 2 {
 			linestring.Append(geo.Point{x, y})
 		}
 	}
@@ -148,7 +145,6 @@ func PolygonFromWKT(wkt string) (geo.Geometry, error) {
 			line := linestring.(geo.LineStringZ)
 			polyz = append(polyz, line.ToRing())
 		}
-
 	}
 	if len(poly) > 0 {
 		return poly, nil

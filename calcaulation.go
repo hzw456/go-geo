@@ -127,7 +127,6 @@ func PointToSegmentDistance(point, p1, p2 Point) (float64, Point) {
 	var xDelta float64 = p2.X - p1.X
 	var yDelta float64 = p2.Y - p1.Y
 
-	//	final double u = ((p3.getX() - p1.getX()) * xDelta + (p3.getY() - p1.getY()) * yDelta) / (xDelta * xDelta + yDelta * yDelta);
 	var u float64 = ((point.X-p1.X)*xDelta + (point.Y-p1.Y)*yDelta) / (xDelta*xDelta + yDelta*yDelta)
 
 	var closestPointOnLine Point
@@ -205,4 +204,24 @@ func PointPolygonDistance(p Point, poly Polygon) float64 {
 		}
 	}
 	return distance
+}
+
+// 由点到线上的最近点
+// 返回参数：最近点，点序，距离
+func PointHitLineString(p Point, line LineString) (Point, int, float64) {
+	distance, nearestIndex, nearestPt := INF, 0, Point{0, 0}
+	ptCount := line.GetPointCount() - 1
+	for i := 0; i < ptCount-1; i++ {
+		var previousPoint Point = line[i]
+		var currentPoint Point = line[i+1]
+
+		segmentDistance, tempPt := PointToSegmentDistance(p, previousPoint, currentPoint)
+
+		if segmentDistance < distance {
+			distance = segmentDistance
+			nearestIndex = i
+			nearestPt = tempPt
+		}
+	}
+	return nearestPt, nearestIndex, distance
 }

@@ -124,3 +124,10 @@ func (line LineString) ToRing() LinearRing {
 func (line LineString) GetPointSet() []Point {
 	return line
 }
+
+//从指定位置分成两条线
+func (line LineString) SplitByIndex(index int) (LineString, LineString) {
+	line1 := line[:index+1]
+	line2 := line[index:]
+	return line1, line2
+}

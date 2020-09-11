@@ -27,15 +27,11 @@ func (p Point) Buffer(width float64) Polygon {
 
 //Euclidean distance
 func (p1 Point) Distance(p2 Point) float64 {
-	if SRID_WGS84_GPS == SRID_WGS84_GPS {
-		return CoordDistance(p1, p2)
-	} else {
-		return EuclideanDis(p1, p2)
-	}
+	return EuclideanDis(p1, p2)
 }
 
 func EuclideanDis(p1, p2 Point) float64 {
-	return math.Sqrt(p1.X*p1.X + p1.Y*p1.Y)
+	return math.Sqrt((p1.X-p2.X)*(p1.X-p2.X) + (p1.Y-p2.Y)*(p1.Y-p2.Y))
 }
 
 //判断元素是否相等
