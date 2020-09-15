@@ -9,9 +9,9 @@ type DouglasPeuckerSimplifier struct {
 	Threshold float64
 }
 
-func (s DouglasPeuckerSimplifier) Simplify(line LineString) LineString {
+func (s DouglasPeuckerSimplifier) Simplify(line LineString, srid SRID) LineString {
 	///获取需要删除的点的序号
-	delIndexs := dpWorker(line, s.Threshold)
+	delIndexs := dpWorker(line, s.Threshold, srid)
 	//排序，从后往前删
 	sort.Sort(sort.Reverse(sort.IntSlice(delIndexs)))
 
@@ -21,7 +21,7 @@ func (s DouglasPeuckerSimplifier) Simplify(line LineString) LineString {
 	return line
 }
 
-func dpWorker(line LineString, threshold float64) []int {
+func dpWorker(line LineString, threshold float64, srid SRID) []int {
 	var stack []int
 	stack = append(stack, 0, len(line)-1)
 	var delIndexs []int
@@ -33,7 +33,7 @@ func dpWorker(line LineString, threshold float64) []int {
 		maxDist := 0.0
 		maxIndex := 0
 		for i := start + 1; i < end; i++ {
-			dist := PointToLineDistance(line[i], line[start], line[end])
+			dist := PointToLineDistance(line[i], line[start], line[end], srid)
 			if dist > maxDist {
 				maxDist = dist
 				maxIndex = i

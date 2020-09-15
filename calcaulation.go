@@ -108,22 +108,30 @@ func CacConvex(p1, p2, p3 Point) (int8, error) {
 }
 
 //Euclidean distance
-func PointDistance(p1 Point, p2 Point) float64 {
+func PointDistance(p1 Point, p2 Point, srid SRID) float64 {
+	if srid == SRID_WGS84_GPS {
+		return CoordDistance(p1, p2)
+	} else {
+		return EuclideanDistance(p1, p2)
+	}
+}
+
+func EuclideanDistance(p1 Point, p2 Point) float64 {
 	return math.Sqrt((p1.X-p2.X)*(p1.X-p2.X) + (p1.Y-p2.Y)*(p1.Y-p2.Y))
 }
 
 // //计算点到直线的距离 向量的方法，先求三角形的面积，再用面积除以底边长
-func PointToLineDistance(point, p1, p2 Point) float64 {
+func PointToLineDistance(point, p1, p2 Point, srid SRID) float64 {
 	if p1.Equal(p2) {
-		return PointDistance(p1, point)
+		return PointDistance(p1, point, srid)
 	}
 	area := polyArea(*NewPolygon(*NewLinearRing(p1, p2, point)))
-	dis := PointDistance(p1, p2)
+	dis := PointDistance(p1, p2, srid)
 	return 2 * area / dis
 }
 
 //计算点到线段的距离 计算了最近点
-func PointToSegmentDistance(point, p1, p2 Point) (float64, Point) {
+func PointToSegmentDistance(point, p1, p2 Point, srid SRID) (float64, Point) {
 	var xDelta float64 = p2.X - p1.X
 	var yDelta float64 = p2.Y - p1.Y
 
@@ -137,7 +145,7 @@ func PointToSegmentDistance(point, p1, p2 Point) (float64, Point) {
 	} else {
 		closestPointOnLine = Point{X: (p1.X + u*xDelta), Y: (p1.Y + u*yDelta)}
 	}
-	return PointDistance(point, closestPointOnLine), closestPointOnLine
+	return PointDistance(point, closestPointOnLine, srid), closestPointOnLine
 }
 
 //如果是一堆点 即计算其坐标的平均值
@@ -184,7 +192,7 @@ func polyCentroid(poly Polygon) Point {
 	return Point{centroidX, centroidY}
 }
 
-func PointPolygonDistance(p Point, poly Polygon) float64 {
+func PointPolygonDistance(p Point, poly Polygon, srid SRID) float64 {
 	if IsPointInPolygon(p, poly) == RELA_CONTAIN || IsPointInPolygon(p, poly) == RELA_TOUCH {
 		return 0
 	}
@@ -197,7 +205,7 @@ func PointPolygonDistance(p Point, poly Polygon) float64 {
 		var previousPoint Point = lr[i]
 		var currentPoint Point = lr[j]
 
-		segmentDistance, _ := PointToSegmentDistance(p, previousPoint, currentPoint)
+		segmentDistance, _ := PointToSegmentDistance(p, previousPoint, currentPoint, srid)
 
 		if segmentDistance < distance {
 			distance = segmentDistance
@@ -208,14 +216,14 @@ func PointPolygonDistance(p Point, poly Polygon) float64 {
 
 // 由点到线上的最近点
 // 返回参数：最近点，点序，距离
-func PointHitLineString(p Point, line LineString) (Point, int, float64) {
+func PointHitLineString(p Point, line LineString, srid SRID) (Point, int, float64) {
 	distance, nearestIndex, nearestPt := INF, 0, Point{0, 0}
-	ptCount := line.GetPointCount() - 1
+	ptCount := line.GetPointCount()
 	for i := 0; i < ptCount-1; i++ {
 		var previousPoint Point = line[i]
 		var currentPoint Point = line[i+1]
 
-		segmentDistance, tempPt := PointToSegmentDistance(p, previousPoint, currentPoint)
+		segmentDistance, tempPt := PointToSegmentDistance(p, previousPoint, currentPoint, srid)
 
 		if segmentDistance < distance {
 			distance = segmentDistance
