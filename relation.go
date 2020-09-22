@@ -26,27 +26,6 @@ func SegmentRelation(seg1, seg2 LineSegment) GeometryRealation {
 	return RELA_DISJOINT // No collision
 }
 
-// func Intersect(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y float64) bool {
-// 	s1_x := p1_x - p0_x
-// 	s1_y := p1_y - p0_y
-// 	s2_x := p3_x - p2_x
-// 	s2_y := p3_y - p2_y
-
-// 	s := (-s1_y*(p0_x-p2_x) + s1_x*(p0_y-p2_y)) / (-s2_x*s1_y + s1_x*s2_y)
-// 	t := (s2_x*(p0_y-p2_y) - s2_y*(p0_x-p2_x)) / (-s2_x*s1_y + s1_x*s2_y)
-// 	fmt.Println("res1=", s)
-// 	fmt.Println("res2=", t)
-// 	if s >= 0 && s <= 1 && t >= 0 && t <= 1 {
-// 		// Collision detected
-// 		//                if (i_x != NULL)
-// 		//                    *i_x = p0_x + (t * s1_x);
-// 		//                if (i_y != NULL)
-// 		//                    *i_y = p0_y + (t * s1_y);
-// 		return true
-// 	}
-// 	return false // No collision
-// }
-
 func SegPolyRelation(seg LineSegment, poly Polygon) GeometryRealation {
 	lr := poly.GetExteriorRing()
 	pointCount := lr.GetPointCount()
@@ -138,4 +117,16 @@ func IsPointOnSegment(p1, p2, point Point) bool {
 		return true
 	}
 	return false
+}
+
+func LineRelation(line1 LineString, line2 LineString) GeometryRealation {
+	for i := 0; i < line1.GetPointCount()-1; i++ {
+		for ii := 0; ii < line2.GetPointCount()-1; ii++ {
+			relation := SegmentRelation(LineSegment{line1[i], line1[i+1]}, LineSegment{line2[ii], line2[ii+1]})
+			if relation != RELA_DISJOINT {
+				return RELA_INTERSECT
+			}
+		}
+	}
+	return RELA_DISJOINT
 }
