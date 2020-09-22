@@ -120,16 +120,6 @@ func EuclideanDistance(p1 Point, p2 Point) float64 {
 	return math.Sqrt((p1.X-p2.X)*(p1.X-p2.X) + (p1.Y-p2.Y)*(p1.Y-p2.Y))
 }
 
-// //计算点到直线的距离 向量的方法，先求三角形的面积，再用面积除以底边长
-func PointToLineDistance(point, p1, p2 Point, srid SRID) float64 {
-	if p1.Equal(p2) {
-		return PointDistance(p1, point, srid)
-	}
-	area := polyArea(*NewPolygon(*NewLinearRing(p1, p2, point)))
-	dis := PointDistance(p1, p2, srid)
-	return 2 * area / dis
-}
-
 //计算点到线段的距离 计算了最近点
 func PointToSegmentDistance(point, p1, p2 Point, srid SRID) (float64, Point) {
 	var xDelta float64 = p2.X - p1.X
@@ -146,6 +136,27 @@ func PointToSegmentDistance(point, p1, p2 Point, srid SRID) (float64, Point) {
 		closestPointOnLine = Point{X: (p1.X + u*xDelta), Y: (p1.Y + u*yDelta)}
 	}
 	return PointDistance(point, closestPointOnLine, srid), closestPointOnLine
+}
+
+// 与上面的函数不用，上面的函数如果交在延长线上会计算两个端点的最近距离
+// 点在线段上的垂足和系数，从p1到p2画一条线段
+// 系数可以大于1或者小于0 分别交于线的的延长线上
+func PointToLineDistance(point, p1, p2 Point, srid SRID) (float64, Point, float64) {
+	var xDelta float64 = p2.X - p1.X
+	var yDelta float64 = p2.Y - p1.Y
+	var u float64 = ((point.X-p1.X)*xDelta + (point.Y-p1.Y)*yDelta) / (xDelta*xDelta + yDelta*yDelta)
+
+	var closestPointOnLine Point
+	if u < 0 {
+		closestPointOnLine = Point{X: (p1.X + u*xDelta), Y: (p1.Y + u*yDelta)}
+	} else if u > 1 {
+		closestPointOnLine = Point{X: (p1.X + u*xDelta), Y: (p1.Y + u*yDelta)}
+	} else {
+		closestPointOnLine = Point{X: (p1.X + u*xDelta), Y: (p1.Y + u*yDelta)}
+	}
+	dist := PointDistance(point, closestPointOnLine, srid)
+
+	return dist, closestPointOnLine, u
 }
 
 //如果是一堆点 即计算其坐标的平均值

@@ -37,19 +37,27 @@ func (line LineString) Verify() error {
 }
 
 //取首点
-func (line LineString) GetFirstPoint() Point {
+func (line LineString) GetFirstPoint() *Point {
 	if len(line) < 2 {
-		return Point{0, 0}
+		return nil
 	}
-	return line[0]
+	return &line[0]
 }
 
 //取尾点
-func (line LineString) GetEndPoint() Point {
+func (line LineString) GetEndPoint() *Point {
 	if len(line) < 2 {
-		return Point{0, 0}
+		return nil
 	}
-	return line[line.GetPointCount()-1]
+	return &line[line.GetPointCount()-1]
+}
+
+//取特定点
+func (line LineString) GetPoint(index int) *Point {
+	if index > line.GetPointCount()-1 {
+		return nil
+	}
+	return &line[index]
 }
 
 func (line *LineString) Append(point Point) error {

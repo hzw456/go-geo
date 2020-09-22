@@ -33,7 +33,7 @@ func dpWorker(line LineString, threshold float64, srid SRID) []int {
 		maxDist := 0.0
 		maxIndex := 0
 		for i := start + 1; i < end; i++ {
-			dist := PointToLineDistance(line[i], line[start], line[end], srid)
+			dist, _ := PointToSegmentDistance(line[i], line[start], line[end], srid)
 			if dist > maxDist {
 				maxDist = dist
 				maxIndex = i
