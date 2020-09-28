@@ -188,7 +188,9 @@ func Decode(wkt string) (geo.Geometry, error) {
 	wkt = strings.Replace(wkt, ", ", ",", -1)
 	re := regexp.MustCompile(`([A-Z]+)\s*[(]\s*(\(*.+\)*)\s*[)]`)
 	match := re.FindStringSubmatch(wkt)
-
+	if len(match) != 3 {
+		return nil, errors.New("wkt format is error")
+	}
 	switch match[1] {
 	case "MULTIPOLYGON":
 		return MultiPolygonFromWKT(match[2])
