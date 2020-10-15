@@ -1,37 +1,12 @@
-/**********************************************************************
- *
- * GEOS - Geometry Engine Open Source
- * http://geos.osgeo.org
- *
- * Copyright (C) 2007 Refractions Research Inc.
- *
- * This is free software; you can redistribute and/or modify it under
- * the terms of the GNU Lesser General Public Licence as published
- * by the Free Software Foundation. 
- * See the COPYING file for more information.
- *
- **********************************************************************/
-#ifndef GEOS_VERSION_H_INCLUDED
-#define GEOS_VERSION_H_INCLUDED
+#ifndef _GEOS_VERSION_H
+#define _GEOS_VERSION_H
 
-#ifndef GEOS_VERSION_MAJOR
-#define GEOS_VERSION_MAJOR 3
-#endif
+#define GEOS_VERSION_MAJOR 2
+#define GEOS_VERSION_MINOR 2
+#define GEOS_VERSION_PATCH 3
+#define GEOS_FIRST_INTERFACE GEOS_VERSION_MAJOR 
+#define GEOS_LAST_INTERFACE (GEOS_VERSION_MAJOR+GEOS_VERSION_MINOR)
+#define GEOS_VERSION "2.2.3"
+#define GEOS_JTS_PORT "1.4.1"
 
-#ifndef GEOS_VERSION_MINOR
-#define GEOS_VERSION_MINOR 4
-#endif
-
-#ifndef GEOS_VERSION_PATCH
-#define GEOS_VERSION_PATCH 2
-#endif
-
-#ifndef GEOS_VERSION
-#define GEOS_VERSION "3.4.2"
-#endif
-
-#ifndef GEOS_JTS_PORT
-#define GEOS_JTS_PORT "1.12.0"
-#endif
-
-#endif // GEOS_VERSION_H_INCLUDED
+#endif // _GEOS_VERSION_H

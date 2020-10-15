@@ -1,7 +1,8 @@
 /**********************************************************************
+ * $Id: profiler.h,v 1.4 2004/12/03 16:21:07 frank Exp $
  *
  * GEOS - Geometry Engine Open Source
- * http://geos.osgeo.org
+ * http://geos.refractions.net
  *
  * Copyright (C) 2001-2002 Vivid Solutions Inc.
  *
@@ -15,47 +16,23 @@
 #ifndef GEOS_PROFILER_H
 #define GEOS_PROFILER_H
 
-#include <stdlib.h> /** need this to correctly detect MINGW64 **/
-#include <geos/export.h>
-
-/* For MingW builds with __STRICT_ANSI__ (-ansi) */
-/** MINGW64 doesn't have a config.h **/
-#if defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR)
-/* Allow us to check for presence of gettimeofday in MingW */ 
-#include <config.h>
-
-#include <sys/time.h>
-extern "C" {
-  extern _CRTIMP void __cdecl	_tzset (void);
-  __MINGW_IMPORT int	_daylight;
-  __MINGW_IMPORT long	_timezone;
-  __MINGW_IMPORT char 	*_tzname[2];
-}
-#endif
- 
-#if defined(_MSC_VER) || defined(__MINGW32__) && !defined(HAVE_GETTIMEOFDAY) && !defined(__MINGW64_VERSION_MAJOR)
-#include <geos/timeval.h>
-#else
-#include <sys/time.h>
-#endif
-
-#include <map>
 #include <memory>
+#include <vector>
+#include <map>
 #include <iostream>
 #include <string>
-#include <vector>
+#ifndef _MSC_VER
+#  include <sys/time.h>
+#endif
+#include <geos/timeval.h>
 
 #ifndef PROFILE
 #define PROFILE 0
 #endif
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable: 4251) // warning C4251: needs to have dll-interface to be used by clients of class
-#endif
+using namespace std;
 
 namespace geos {
-namespace util {
 
 
 /*
@@ -63,36 +40,19 @@ namespace util {
  *
  * \brief Profile statistics
  */
-class GEOS_DLL Profile {
+class Profile {
 public:
 	/** \brief Create a named profile */
-	Profile(std::string name);
+	Profile(string name);
 
 	/** \brief Destructor */
 	~Profile();
 
 	/** \brief start a new timer */
-	void start() {
-		gettimeofday(&starttime, NULL);
-	}
+	void start();
 
 	/** \brief stop current timer */
-	void stop()
-	{
-		gettimeofday(&stoptime, NULL);
-		double elapsed = 1000000*(stoptime.tv_sec-starttime.tv_sec)+
-			(stoptime.tv_usec-starttime.tv_usec);
-
-		timings.push_back(elapsed);
-		totaltime += elapsed;
-		if ( timings.size() == 1 ) max = min = elapsed;
-		else
-		{
-			if ( elapsed > max ) max = elapsed;
-			if ( elapsed < min ) min = elapsed;
-		}
-		avg = totaltime / timings.size();
-	}
+	void stop();
 
 	/** \brief Return Max stored timing */
 	double getMax() const;
@@ -107,10 +67,10 @@ public:
 	double getAvg() const;
 
 	/** \brief Return number of timings */
-	size_t getNumTimings() const;
+	unsigned int getNumTimings() const;
 
 	/** \brief Profile name */
-	std::string name;
+	string name;
 
 
 private:
@@ -119,7 +79,7 @@ private:
 	struct timeval starttime, stoptime;
 
 	/* \brief actual times */
-	std::vector<double> timings;
+	vector<double> timings;
 
 	/* \brief total time */
 	double totaltime;
@@ -141,7 +101,7 @@ private:
  * \brief Profiling class
  *
  */
-class GEOS_DLL Profiler {
+class Profiler {
 
 public:
 
@@ -160,33 +120,45 @@ public:
 	 * Start timer for named task. The task is
 	 * created if does not exist.
 	 */
-	void start(std::string name);
+	void start(string name);
 
 	/**
 	 * \brief
 	 * Stop timer for named task. 
 	 * Elapsed time is registered in the given task.
 	 */
-	void stop(std::string name);
+	void stop(string name);
 
 	/** \brief get Profile of named task */
-	Profile *get(std::string name);
+	Profile *get(string name);
 
-	std::map<std::string, Profile *> profs;
+	map<string, Profile *> profs;
 };
 
 
 /** \brief Return a string representing the Profile */
-std::ostream& operator<< (std::ostream& os, const Profile&);
+ostream& operator<< (ostream& os, const Profile&);
 
 /** \brief Return a string representing the Profiler */
-std::ostream& operator<< (std::ostream& os, const Profiler&);
+ostream& operator<< (ostream& os, const Profiler&);
 
-} // namespace geos::util
-} // namespace geos
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
+}
 #endif // ndef GEOS_PROFILER_H
+
+/**********************************************************************
+ * $Log: profiler.h,v $
+ * Revision 1.4  2004/12/03 16:21:07  frank
+ * dont try for sys/time.h with MSVC
+ *
+ * Revision 1.3  2004/11/30 16:44:16  strk
+ * Added gettimeofday implementation for win32, curtesy of Wu Yongwei.
+ *
+ * Revision 1.2  2004/11/04 08:49:13  strk
+ * Unlinked new documentation.
+ *
+ * Revision 1.1  2004/11/01 16:43:04  strk
+ * Added Profiler code.
+ * Temporarly patched a bug in DoubleBits (must check drawbacks).
+ * Various cleanups and speedups.
+ *
+ **********************************************************************/
