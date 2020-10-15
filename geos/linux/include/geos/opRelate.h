@@ -1,228 +1,83 @@
 /**********************************************************************
- * $Id: opRelate.h,v 1.3 2004/07/27 16:35:46 strk Exp $
  *
  * GEOS - Geometry Engine Open Source
- * http://geos.refractions.net
+ * http://geos.osgeo.org
  *
  * Copyright (C) 2001-2002 Vivid Solutions Inc.
+ * Copyright (C) 2005 Refractions Research Inc.
  *
  * This is free software; you can redistribute and/or modify it under
  * the terms of the GNU Lesser General Public Licence as published
- * by the Free Software Foundation. 
+ * by the Free Software Foundation.
  * See the COPYING file for more information.
  *
- **********************************************************************
- * $Log: opRelate.h,v $
- * Revision 1.3  2004/07/27 16:35:46  strk
- * Geometry::getEnvelopeInternal() changed to return a const Envelope *.
- * This should reduce object copies as once computed the envelope of a
- * geometry remains the same.
- *
- * Revision 1.2  2004/07/19 13:19:31  strk
- * Documentation fixes
- *
- * Revision 1.1  2004/07/02 13:20:42  strk
- * Header files moved under geos/ dir.
- *
- * Revision 1.15  2004/03/29 06:59:24  ybychkov
- * "noding/snapround" package ported (JTS 1.4);
- * "operation", "operation/valid", "operation/relate" and "operation/overlay" upgraded to JTS 1.4;
- * "geom" partially upgraded.
- *
- * Revision 1.14  2004/03/19 09:48:46  ybychkov
- * "geomgraph" and "geomgraph/indexl" upgraded to JTS 1.4
- *
- * Revision 1.13  2004/03/01 22:04:59  strk
- * applied const correctness changes by Manuel Prieto Villegas <ManuelPrietoVillegas@telefonica.net>
- *
- * Revision 1.12  2003/11/07 01:23:42  pramsey
- * Add standard CVS headers licence notices and copyrights to all cpp and h
- * files.
- *
- *
  **********************************************************************/
-
 
 #ifndef GEOS_OPRELATE_H
 #define GEOS_OPRELATE_H
 
-#include <memory>
-#include <string>
-#include <vector>
-#include <geos/platform.h>
-#include <geos/operation.h>
-#include <geos/geomgraph.h>
-#include <geos/geosAlgorithm.h>
-
 namespace geos {
+namespace operation { // geos::operation
 
-/*
- * Represents a node in the topological graph used to compute spatial
- * relationships.
- */
-class RelateNode: public Node {
-public:
-	RelateNode(Coordinate& coord,EdgeEndStar *edges);
-	virtual ~RelateNode();
-	void updateIMFromEdges(IntersectionMatrix *im);
-protected:
-	void computeIM(IntersectionMatrix *im);
-};
 
-/*
- * Computes the EdgeEnd objects which arise from a noded Edge.
- */
-class EdgeEndBuilder {
-public:
-	EdgeEndBuilder();
-	vector<EdgeEnd*> *computeEdgeEnds(vector<Edge*> *edges);
-	void computeEdgeEnds(Edge *edge,vector<EdgeEnd*> *l);
-protected:
-	void createEdgeEndForPrev(Edge *edge,vector<EdgeEnd*> *l,EdgeIntersection *eiCurr,EdgeIntersection *eiPrev);
-	void createEdgeEndForNext(Edge *edge,vector<EdgeEnd*> *l,EdgeIntersection *eiCurr,EdgeIntersection *eiNext);
-};
-
-/*
- * Contains all EdgeEnd objectss which start at the same point
- * and are parallel.
- */
-class EdgeEndBundle: public EdgeEnd {
-public:
-	EdgeEndBundle(EdgeEnd *e);
-	virtual ~EdgeEndBundle();
-	Label *getLabel();
-//Iterator iterator() //Not needed
-	vector<EdgeEnd*>* getEdgeEnds();
-	void insert(EdgeEnd *e);
-	void computeLabel() ; 
-	void updateIM(IntersectionMatrix *im);
-	string print();
-protected:
-	vector<EdgeEnd*> *edgeEnds;
-	void computeLabelOn(int geomIndex);
-	void computeLabelSides(int geomIndex);
-	void computeLabelSide(int geomIndex,int side);
-};
-
-/*
- * An ordered list of EdgeEndBundle objects around a RelateNode.
- * They are maintained in CCW order (starting with the positive x-axis)
- * around the node
- * for efficient lookup and topology building.
- */
-class EdgeEndBundleStar: public EdgeEndStar {
-public:
-	EdgeEndBundleStar();
-	virtual ~EdgeEndBundleStar();
-	void insert(EdgeEnd *e);
-	void updateIM(IntersectionMatrix *im);
-};
-
-/*
- * Used by the NodeMap in a RelateNodeGraph to create RelateNode objects.
- */
-class RelateNodeFactory: public NodeFactory {
-public:
-	Node* createNode(Coordinate coord);
-};
-
-/*
- * Implements the simple graph of Nodes and EdgeEnd which is all that is
- * required to determine topological relationships between Geometries.
- * Also supports building a topological graph of a single Geometry, to
- * allow verification of valid topology.
- * 
- * It is <b>not</b> necessary to create a fully linked
- * PlanarGraph to determine relationships, since it is sufficient
- * to know how the Geometries interact locally around the nodes.
- * In fact, this is not even feasible, since it is not possible to compute
- * exact intersection points, and hence the topology around those nodes
- * cannot be computed robustly.
- * The only Nodes that are created are for improper intersections;
- * that is, nodes which occur at existing vertices of the Geometries.
- * Proper intersections (e.g. ones which occur between the interior of
- * line segments)
- * have their topology determined implicitly, without creating a Node object
- * to represent them.
+/** \brief
+ * Contains classes to implement the computation of the spatial relationships of <CODE>Geometry</CODE>s.
+ *
+ * The <code>relate</code> algorithm computes the <code>IntersectionMatrix</code> describing the
+ * relationship of two <code>Geometry</code>s.  The algorithm for computing <code>relate</code>
+ * uses the intersection operations supported by topology graphs.  Although the <code>relate</code>
+ * result depends on the resultant graph formed by the computed intersections, there is
+ * no need to explicitly compute the entire graph.
+ * It is sufficient to compute the local structure of the graph
+ * at each intersection node.
+ * <P>
+ * The algorithm to compute <code>relate</code> has the following steps:
+ * <UL>
+ *   <LI>Build topology graphs of the two input geometries. For each geometry
+ *       all self-intersection nodes are computed and added to the graph.
+ *   <LI>Compute nodes for all intersections between edges and nodes of the graphs.
+ *   <LI>Compute the labeling for the computed nodes by merging the labels from the input graphs.
+ *   <LI>Compute the labeling for isolated components of the graph (see below)
+ *   <LI>Compute the <code>IntersectionMatrix</code> from the labels on the nodes and edges.
+ * </UL>
+ *
+ * <H3>Labeling isolated components</H3>
+ *
+ * Isolated components are components (edges or nodes) of an input <code>Geometry</code> which
+ * do not contain any intersections with the other input <code>Geometry</code>.  The
+ * topological relationship of these components to the other input <code>Geometry</code>
+ * must be computed in order to determine the complete labeling of the component.  This can
+ * be done by testing whether the component lies in the interior or exterior of the other
+ * <code>Geometry</code>.  If the other <code>Geometry</code> is 1-dimensional, the isolated
+ * component must lie in the exterior (since otherwise it would have an intersection with an
+ * edge of the <code>Geometry</code>).  If the other <code>Geometry</code> is 2-dimensional,
+ * a Point-In-Polygon test can be used to determine whether the isolated component is in the
+ * interior or exterior.
+ *
+ * <h2>Package Specification</h2>
+ *
+ * <ul>
+ *   <li>Java Topology Suite Technical Specifications
+ *   <li><A HREF="http://www.opengis.org/techno/specs.htm">
+ *       OpenGIS Simple Features Specification for SQL</A>
+ * </ul>
  *
  */
-class RelateNodeGraph {
-public:
-	RelateNodeGraph();
-	virtual ~RelateNodeGraph();
-//	Iterator getNodeIterator();
-	map<Coordinate,Node*,CoordLT>* getNodeMap();
-	void build(GeometryGraph *geomGraph);
-	void computeIntersectionNodes(GeometryGraph *geomGraph,int argIndex);
-	void copyNodesAndLabels(GeometryGraph *geomGraph,int argIndex);
-	void insertEdgeEnds(vector<EdgeEnd*> *ee);
-private:
-	NodeMap *nodes;
-};
+namespace relate { // geos.operation.relate
 
-/*
- * Computes the topological relationship between two Geometries.
- *
- * RelateComputer does not need to build a complete graph structure to compute
- * the IntersectionMatrix.  The relationship between the geometries can
- * be computed by simply examining the labelling of edges incident on each node.
- * 
- * RelateComputer does not currently support arbitrary GeometryCollections.
- * This is because GeometryCollections can contain overlapping Polygons.
- * In order to correct compute relate on overlapping Polygons, they
- * would first need to be noded and merged (if not explicitly, at least
- * implicitly).
- *
- */
-class RelateComputer {
-friend class Unload;
-public:
-	RelateComputer();
-	virtual ~RelateComputer();
-	RelateComputer(vector<GeometryGraph*> *newArg);
-	IntersectionMatrix* computeIM();
-private:
-	static const LineIntersector* li;
-	static const PointLocator* ptLocator;
-	vector<GeometryGraph*> *arg;  // the arg(s) of the operation
-	NodeMap *nodes;
-	// this intersection matrix will hold the results compute for the relate
-	IntersectionMatrix *im;
-	vector<Edge*> *isolatedEdges;
-	// the intersection point found (if any)
-	Coordinate invalidPoint;
-	void insertEdgeEnds(vector<EdgeEnd*> *ee);
-	void computeProperIntersectionIM(SegmentIntersector *intersector,IntersectionMatrix *imX);
-	void copyNodesAndLabels(int argIndex);
-	void computeIntersectionNodes(int argIndex);
-	void labelIntersectionNodes(int argIndex);
-	void computeDisjointIM(IntersectionMatrix *imX);
-	void labelNodeEdges();
-	void updateIM(IntersectionMatrix *imX);
-	void labelIsolatedEdges(int thisIndex,int targetIndex);
-	void labelIsolatedEdge(Edge *e,int targetIndex, const Geometry *target);
-	void labelIsolatedNodes();
-	void labelIsolatedNode(Node *n,int targetIndex);
-};
+} // namespace geos:operation:relate
+} // namespace geos:operation
+} // namespace geos
 
-/*
- * Implements the relate() operation on Geometry.
- * 
- * WARNING: The current implementation of this class will compute a result for
- * GeometryCollections.  However, the semantics of this operation are
- * not well-defined and the value returned may not represent
- * an appropriate notion of relate.
- */
-class RelateOp: public GeometryGraphOperation {
-public:
-	static IntersectionMatrix* relate(const Geometry *a,const Geometry *b);
-	RelateOp(const Geometry *g0, const Geometry *g1);
-	virtual ~RelateOp();
-	IntersectionMatrix* getIntersectionMatrix();
-private:
-	RelateComputer relateComp;
-};
-}
+
+//#include <geos/operation/relate/EdgeEndBuilder.h>
+//#include <geos/operation/relate/EdgeEndBundle.h>
+//#include <geos/operation/relate/EdgeEndBundleStar.h>
+#include <geos/operation/relate/RelateComputer.h>
+//#include <geos/operation/relate/RelateNode.h>
+//#include <geos/operation/relate/RelateNodeFactory.h>
+//#include <geos/operation/relate/RelateNodeGraph.h>
+#include <geos/operation/relate/RelateOp.h>
 
 #endif
 

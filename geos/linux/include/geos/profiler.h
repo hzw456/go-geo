@@ -1,14 +1,13 @@
 /**********************************************************************
- * $Id: profiler.h,v 1.4 2004/12/03 16:21:07 frank Exp $
  *
  * GEOS - Geometry Engine Open Source
- * http://geos.refractions.net
+ * http://geos.osgeo.org
  *
  * Copyright (C) 2001-2002 Vivid Solutions Inc.
  *
  * This is free software; you can redistribute and/or modify it under
  * the terms of the GNU Lesser General Public Licence as published
- * by the Free Software Foundation. 
+ * by the Free Software Foundation.
  * See the COPYING file for more information.
  *
  **********************************************************************/
@@ -16,23 +15,26 @@
 #ifndef GEOS_PROFILER_H
 #define GEOS_PROFILER_H
 
-#include <memory>
-#include <vector>
+#include <geos/export.h>
+#include <chrono>
+
 #include <map>
+#include <memory>
 #include <iostream>
 #include <string>
-#ifndef _MSC_VER
-#  include <sys/time.h>
-#endif
-#include <geos/timeval.h>
+#include <vector>
 
 #ifndef PROFILE
 #define PROFILE 0
 #endif
 
-using namespace std;
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4251) // warning C4251: needs to have dll-interface to be used by clients of class
+#endif
 
 namespace geos {
+namespace util {
 
 
 /*
@@ -40,59 +42,89 @@ namespace geos {
  *
  * \brief Profile statistics
  */
-class Profile {
+class GEOS_DLL Profile {
 public:
-	/** \brief Create a named profile */
-	Profile(string name);
+    using timeunit = std::chrono::microseconds;
 
-	/** \brief Destructor */
-	~Profile();
+    /** \brief Create a named profile */
+    Profile(std::string name);
 
-	/** \brief start a new timer */
-	void start();
+    /** \brief Destructor */
+    ~Profile() = default;
 
-	/** \brief stop current timer */
-	void stop();
+    /** \brief start a new timer */
+    void
+    start()
+    {
+        starttime = std::chrono::high_resolution_clock::now();
+    }
 
-	/** \brief Return Max stored timing */
-	double getMax() const;
+    /** \brief stop current timer */
+    void
+    stop()
+    {
+        stoptime = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<timeunit>(stoptime - starttime);
 
-	/** \brief Return Min stored timing */
-	double getMin() const;
+        timings.push_back(elapsed);
 
-	/** \brief Return total timing */
-	double getTot() const;
+        totaltime += elapsed;
+        if(timings.size() == 1) {
+            max = min = elapsed;
+        }
+        else {
+            if(elapsed > max) {
+                max = elapsed;
+            }
+            if(elapsed < min) {
+                min = elapsed;
+            }
+        }
 
-	/** \brief Return average timing */
-	double getAvg() const;
+        avg = static_cast<double>(totaltime.count()) / static_cast<double>(timings.size());
+    }
 
-	/** \brief Return number of timings */
-	unsigned int getNumTimings() const;
+    /** \brief Return Max stored timing */
+    double getMax() const;
 
-	/** \brief Profile name */
-	string name;
+    /** \brief Return Min stored timing */
+    double getMin() const;
+
+    /** \brief Return total timing */
+    double getTot() const;
+
+    /** \brief Return total timing */
+    std::string getTotFormatted() const;
+
+    /** \brief Return average timing */
+    double getAvg() const;
+
+    /** \brief Return number of timings */
+    size_t getNumTimings() const;
+
+    /** \brief Profile name */
+    std::string name;
+
 
 
 private:
+    /* \brief current start and stop times */
+    std::chrono::high_resolution_clock::time_point starttime, stoptime;
 
-	/* \brief current start and stop times */
-	struct timeval starttime, stoptime;
+    /* \brief actual times */
+    std::vector<timeunit> timings;
 
-	/* \brief actual times */
-	vector<double> timings;
+    /* \brief total time */
+    timeunit totaltime;
 
-	/* \brief total time */
-	double totaltime;
+    /* \brief max time */
+    timeunit max;
 
-	/* \brief max time */
-	double max;
+    /* \brief max time */
+    timeunit min;
 
-	/* \brief max time */
-	double min;
-
-	/* \brief max time */
-	double avg;
-
+    /* \brief avg time */
+    double avg;
 };
 
 /*
@@ -101,64 +133,55 @@ private:
  * \brief Profiling class
  *
  */
-class Profiler {
+class GEOS_DLL Profiler {
 
 public:
 
-	Profiler();
-	~Profiler();
+    Profiler() = default;
+    ~Profiler() = default;
 
-	/**
-	 * \brief
-	 * Return the singleton instance of the
-	 * profiler.
-	 */
-	static Profiler *instance(void);
+    Profiler(const Profiler&) = delete;
+    Profiler& operator=(const Profiler&) = delete;
 
-	/**
-	 * \brief
-	 * Start timer for named task. The task is
-	 * created if does not exist.
-	 */
-	void start(string name);
+    /**
+     * \brief
+     * Return the singleton instance of the
+     * profiler.
+     */
+    static Profiler* instance(void);
 
-	/**
-	 * \brief
-	 * Stop timer for named task. 
-	 * Elapsed time is registered in the given task.
-	 */
-	void stop(string name);
+    /**
+     * \brief
+     * Start timer for named task. The task is
+     * created if does not exist.
+     */
+    void start(std::string name);
 
-	/** \brief get Profile of named task */
-	Profile *get(string name);
+    /**
+     * \brief
+     * Stop timer for named task.
+     * Elapsed time is registered in the given task.
+     */
+    void stop(std::string name);
 
-	map<string, Profile *> profs;
+    /** \brief get Profile of named task */
+    Profile* get(std::string name);
+
+    std::map<std::string, std::unique_ptr<Profile>> profs;
 };
 
 
 /** \brief Return a string representing the Profile */
-ostream& operator<< (ostream& os, const Profile&);
+GEOS_DLL std::ostream& operator<< (std::ostream& os, const Profile&);
 
 /** \brief Return a string representing the Profiler */
-ostream& operator<< (ostream& os, const Profiler&);
+GEOS_DLL std::ostream& operator<< (std::ostream& os, const Profiler&);
 
-}
+} // namespace geos::util
+} // namespace geos
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
 #endif // ndef GEOS_PROFILER_H
-
-/**********************************************************************
- * $Log: profiler.h,v $
- * Revision 1.4  2004/12/03 16:21:07  frank
- * dont try for sys/time.h with MSVC
- *
- * Revision 1.3  2004/11/30 16:44:16  strk
- * Added gettimeofday implementation for win32, curtesy of Wu Yongwei.
- *
- * Revision 1.2  2004/11/04 08:49:13  strk
- * Unlinked new documentation.
- *
- * Revision 1.1  2004/11/01 16:43:04  strk
- * Added Profiler code.
- * Temporarly patched a bug in DoubleBits (must check drawbacks).
- * Various cleanups and speedups.
- *
- **********************************************************************/
