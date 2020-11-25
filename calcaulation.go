@@ -244,3 +244,27 @@ func PointHitLineString(p Point, line LineString, srid SRID) (Point, int, float6
 	}
 	return nearestPt, nearestIndex, distance
 }
+
+func RotateCW(geo Geometry, center Point, angle float64) Geometry {
+	switch geo.Type() {
+	case GEOMETRY_POINT:
+		pt := geo.(Point)
+		//顺时针旋转
+		x := (pt.X-center.X)*math.Cos(angle) + (pt.Y-center.Y)*math.Sin(angle) + center.X
+		y := (center.X-pt.X)*math.Sin(angle) + (pt.Y-center.Y)*math.Cos(angle) + center.Y
+		return Point{math.Trunc(x*10000) / 10000, math.Trunc(y*10000) / 10000}
+	case GEOMETRY_POLYGON:
+		poly := geo.(Polygon)
+		var pts []Point
+		for _, v := range poly.GetExteriorRing().GetPointSet() {
+			geo1 := RotateCW(v, center, angle)
+			pts = append(pts, geo1.(Point))
+		}
+		return *NewPolygonFromPois(pts...)
+	}
+	return nil
+}
+
+func RotateCCW(geo Geometry, center Point, angle float64) Geometry {
+	return RotateCW(geo, center, -angle)
+}

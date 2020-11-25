@@ -94,3 +94,7 @@ func (b1 *Box) Intersect(b2 *Box) bool {
 	}
 	return true
 }
+
+func (b1 *Box) Union(b2 *Box) Box {
+	return Box{}
+}
