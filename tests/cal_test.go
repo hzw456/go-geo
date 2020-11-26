@@ -27,3 +27,14 @@ func TestRotate(t *testing.T) {
 	poly2 := geo.RotateCCW(poly1, newPoint1, 45.0/180.0*math.Pi)
 	t.Log(wkt.Encode(poly2))
 }
+
+func TestHausdorff(t *testing.T) {
+	newPoint1 := *geo.NewPoint(0, 0)
+	newPoint2 := *geo.NewPoint(1, 1)
+	newPoint3 := *geo.NewPoint(2, 0)
+	newPoint4 := *geo.NewPoint(3, 0)
+	line1 := *geo.NewLineString(newPoint1, newPoint2, newPoint3)
+	line2 := *geo.NewLineString(newPoint1, newPoint2, newPoint4)
+	dis := geo.HausdorffDistance(line1, line2, geo.SRID_WGS84_PSEUDO_MERCATOR)
+	t.Log(dis)
+}

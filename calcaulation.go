@@ -268,3 +268,35 @@ func RotateCW(geo Geometry, center Point, angle float64) Geometry {
 func RotateCCW(geo Geometry, center Point, angle float64) Geometry {
 	return RotateCW(geo, center, -angle)
 }
+
+func HausdorffDistance(line1, line2 LineString, srid SRID) float64 {
+	if line1.Length() == 0 || line2.Length() == 0 {
+		return INF
+	}
+	maxDis := 0.0
+	for _, pt1 := range line1 {
+		minDis := INF
+		for _, pt2 := range line2 {
+			d := PointDistance(pt1, pt2, srid)
+			if minDis > d {
+				minDis = d
+			}
+		}
+		if maxDis < minDis && minDis != INF {
+			maxDis = minDis
+		}
+	}
+	for _, pt1 := range line2 {
+		minDis := INF
+		for _, pt2 := range line1 {
+			d := PointDistance(pt1, pt2, srid)
+			if minDis > d {
+				minDis = d
+			}
+		}
+		if maxDis < minDis && minDis != INF {
+			maxDis = minDis
+		}
+	}
+	return maxDis
+}
