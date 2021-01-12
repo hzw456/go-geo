@@ -10,7 +10,7 @@ func S2GetCellID(p Point, level int, srid SRID) uint64 {
 		cellID := s2.CellIDFromLatLng(s2.LatLng{Lat: s1.Angle(p.X), Lng: s1.Angle(p.Y)}).Parent(level)
 		return uint64(cellID)
 	}
-	return -1
+	return 0
 }
 
 func S2GetCenter(cellID uint64, level int, srid SRID) *Point {
