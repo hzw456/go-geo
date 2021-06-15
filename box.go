@@ -1,5 +1,7 @@
 package geo
 
+import "math"
+
 type Box struct {
 	MinX float64
 	MinY float64
@@ -95,6 +97,34 @@ func (b1 *Box) Intersect(b2 *Box) bool {
 	return true
 }
 
-func (b1 *Box) Union(b2 *Box) Box {
-	return Box{}
+func (b1 *Box) Union(b2 *Box) *Box {
+	// math.Max(float64, float64) float64
+	return &Box{MinX: math.Min(b1.MinX, b2.MinX), MinY: math.Min(b1.MinY, b2.MinY),
+		MaxX: math.Max(b1.MaxX, b2.MaxX), MaxY: math.Max(b1.MinY, b2.MinY)}
+}
+
+func BoxUnion(boxs ...*Box) *Box {
+	if len(boxs) == 0 {
+		return &Box{}
+	}
+	box := boxs[0]
+	for _, b1 := range boxs[1:] {
+		box = box.Union(b1)
+	}
+	return box
+}
+
+// Size computes the measure of a rectangle (the product of its side lengths).
+func (b1 *Box) Size() float64 {
+	return (b1.MaxX - b1.MinX) * (b1.MaxY - b1.MinY)
+}
+
+func (b1 *Box) Contain(b2 *Box) bool {
+	if b1.MinX > b2.MinX || b2.MaxX > b1.MaxX {
+		return false
+	}
+	if b1.MinY > b2.MinY || b2.MaxY > b1.MaxY {
+		return false
+	}
+	return true
 }
