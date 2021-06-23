@@ -20,3 +20,17 @@ func S2GetCenter(cellID uint64, srid SRID) *Point {
 	}
 	return nil
 }
+
+func S2GetAllNeighbors(cellID uint64, srid SRID) []uint64 {
+	cellIDS2 := s2.CellID(cellID)
+	var cellIDsInt []uint64
+	if srid == SRID_WGS84_GPS {
+		cellIDs := cellIDS2.AllNeighbors(cellIDS2.Level())
+		for _, cellID := range cellIDs {
+			cellIDsInt = append(cellIDsInt, uint64(cellID))
+		}
+
+		return cellIDsInt
+	}
+	return []uint64{}
+}

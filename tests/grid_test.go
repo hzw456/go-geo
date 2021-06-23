@@ -11,3 +11,8 @@ func TestS2(t *testing.T) {
 	coord := geo.S2GetCenter(11990234155561517056, geo.SRID_WGS84_GPS)
 	t.Log(coord)
 }
+
+func TestS2GetAllNeighbors(t *testing.T) {
+	cellID := geo.S2GetAllNeighbors(11990234155561517056, geo.SRID_WGS84_GPS)
+	t.Log(cellID)
+}
