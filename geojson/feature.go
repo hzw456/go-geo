@@ -13,7 +13,7 @@ type Feature struct {
 	GeometryJson *GeoJson               `json:"geometry"`
 	Properties   map[string]interface{} `json:"properties"`
 	CRS          map[string]interface{} `json:"crs,omitempty"`
-	Geometry     geo.Geometry
+	Geometry     geo.Geometry           `json:"-"`
 }
 
 // NewFeature creates and initializes a GeoJSON feature given the required attributes.

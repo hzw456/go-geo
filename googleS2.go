@@ -21,6 +21,19 @@ func S2GetCenter(cellID uint64, srid SRID) *Point {
 	return nil
 }
 
+func S2GetBoundary(cellID uint64, srid SRID) []Point {
+	cellIDS2 := s2.CellID(cellID)
+	var res []Point
+	if srid == SRID_WGS84_GPS {
+		loop := s2.LoopFromCell(s2.CellFromCellID(cellIDS2))
+		for _, v := range loop.Vertices() {
+			res = append(res, Point{s2.LatLngFromPoint(v).Lat.Degrees(), s2.LatLngFromPoint(v).Lng.Degrees()})
+		}
+		return res
+	}
+	return nil
+}
+
 func S2GetAllNeighbors(cellID uint64, srid SRID) []uint64 {
 	cellIDS2 := s2.CellID(cellID)
 	var cellIDsInt []uint64
@@ -33,4 +46,32 @@ func S2GetAllNeighbors(cellID uint64, srid SRID) []uint64 {
 		return cellIDsInt
 	}
 	return []uint64{}
+}
+
+func RegionCoverer(poly Polygon, level int, srid SRID) []uint64 {
+	loops := []*s2.Loop{}
+	if err := poly.Verify(); err != nil {
+		return []uint64{}
+	}
+	loops = append(loops, toLoop(poly.GetExteriorPoints()))
+	var cellIDsInt []uint64
+	polygon := s2.PolygonFromLoops(loops)
+	latlng := s2.LatLngFromDegrees(poly.GetExteriorPoints()[0].X, poly.GetExteriorPoints()[0].Y)
+	cellIDs := s2.SimpleRegionCovering(s2.Region(polygon), s2.PointFromLatLng(latlng), level)
+	for _, cellID := range cellIDs {
+		cellIDsInt = append(cellIDsInt, uint64(cellID))
+	}
+
+	return cellIDsInt
+}
+
+func toLoop(points []Point) *s2.Loop {
+	var pts []s2.Point
+	for _, pt := range points {
+		pts = append(pts, s2.PointFromLatLng(s2.LatLngFromDegrees(pt.X, pt.Y)))
+	}
+	for i, j := 0, len(pts)-1; i < j; i, j = i+1, j-1 {
+		pts[i], pts[j] = pts[j], pts[i]
+	}
+	return s2.LoopFromPoints(pts)
 }

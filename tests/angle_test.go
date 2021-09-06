@@ -7,7 +7,7 @@ import (
 )
 
 func TestGetAzimuth(t *testing.T) {
-	newPoint1 := *geo.NewPoint(23.308908764595763, 101.5422887717471)
-	newPoint2 := *geo.NewPoint(23.308749916024873, 101.55205930972208)
+	newPoint1 := *geo.NewPoint(22.956205800445613, 112.95067837273719)
+	newPoint2 := *geo.NewPoint(23.045253006300054, 113.0495284775218)
 	t.Log(geo.GetAzimuth(newPoint1, newPoint2, geo.SRID_WGS84_GPS))
 }

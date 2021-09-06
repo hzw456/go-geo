@@ -24,6 +24,10 @@ type Rtree struct {
 	height      int
 }
 
+func NewDefaultTree(objs ...Spatial) *Rtree {
+	return NewTree(2, 10, objs...)
+}
+
 // NewTree returns an Rtree. If the number of objects given on initialization
 // is larger than max, the Rtree will be initialized using the Overlap
 // Minimizing Top-down bulk-loading algorithm.
@@ -105,7 +109,7 @@ func (tree *Rtree) bulkLoad(objs []Spatial) {
 	entries := make([]entry, n)
 	for i := range objs {
 		entries[i] = entry{
-			bb:  objs[i].Bounds(),
+			bb:  BoundingBox(objs[i].geom),
 			obj: objs[i],
 		}
 	}
@@ -224,19 +228,15 @@ func (e entry) String() string {
 }
 
 // Spatial is an interface for objects that can be stored in an Rtree and queried.
-type Spatial interface {
-	Bounds() *Box
+type Spatial struct {
+	id         string
+	properties interface{}
+	geom       Geometry
 }
 
-// Insertion
-
-// Insert inserts a spatial object into the tree.  If insertion
-// causes a leaf node to overflow, the tree is rebalanced automatically.
-//
-// Implemented per Section 3.2 of "R-trees: A Dynamic Index Structure for
-// Spatial Searching" by A. Guttman, Proceedings of ACM SIGMOD, p. 47-57, 1984.
+// 插入rtree
 func (tree *Rtree) Insert(obj Spatial) {
-	e := entry{obj.Bounds(), nil, obj}
+	e := entry{BoundingBox(obj.geom), nil, obj}
 	tree.insert(e, 1)
 	tree.size++
 }
@@ -312,7 +312,7 @@ func (tree *Rtree) adjustTree(n, nn *node) (*node, *node) {
 
 	// Otherwise, these are two nodes resulting from a split.
 	// n was reused as the "left" node, but we need to add nn to n.parent.
-	enn := entry{nn.computeBoundingBox(), nn, nil}
+	enn := entry{nn.computeBoundingBox(), nn, Spatial{}}
 	n.parent.entries = append(n.parent.entries, enn)
 
 	// If the new entry overflows the parent, split the parent and propagate.
@@ -538,7 +538,7 @@ func (tree *Rtree) findLeaf(n *node, obj Spatial, cmp Comparator) *node {
 	}
 	// if not leaf, search all candidate subtrees
 	for _, e := range n.entries {
-		if e.bb.Contain(obj.Bounds()) {
+		if e.bb.Contain(BoundingBox(obj.geom)) {
 			leaf := tree.findLeaf(e.child, obj, cmp)
 			if leaf == nil {
 				continue
@@ -585,7 +585,7 @@ func (tree *Rtree) condenseTree(n *node) {
 
 	for _, n := range deleted {
 		// reinsert entry so that it will remain at the same level as before
-		e := entry{n.computeBoundingBox(), n, nil}
+		e := entry{n.computeBoundingBox(), n, Spatial{}}
 		tree.insert(e, n.level+1)
 	}
 }
@@ -637,13 +637,6 @@ func (tree *Rtree) searchIntersect(results []Spatial, n *node, bb *Box, filters 
 	return results
 }
 
-// NearestNeighbor returns the closest object to the specified point.
-// Implemented per "Nearest Neighbor Queries" by Roussopoulos et al
-// func (tree *Rtree) NearestNeighbor(p Point) Spatial {
-// 	obj, _ := tree.nearestNeighbor(p, tree.root, math.MaxFloat64, nil)
-// 	return obj
-// }
-
 // GetAllBoundingBoxes returning slice of bounding boxes by traversing tree. Slice
 // includes bounding boxes from all non-leaf nodes.
 func (tree *Rtree) GetAllBoundingBoxes() []*Box {
@@ -691,67 +684,6 @@ func sortPreallocEntries(p Point, entries, sorted []entry, dists []float64) ([]e
 	return sorted, dists
 }
 
-// func (p Point) minMaxDist(r *Rect) float64 {
-
-// 	// by definition, MinMaxDist(p, r) =
-// 	// min{1<=k<=n}(|pk - rmk|^2 + sum{1<=i<=n, i != k}(|pi - rMi|^2))
-// 	// where rmk and rMk are defined as follows:
-
-// 	rm := func(k int) float64 {
-// 		if p[k] <= (r.p[k]+r.q[k])/2 {
-// 			return r.p[k]
-// 		}
-// 		return r.q[k]
-// 	}
-
-// 	rM := func(k int) float64 {
-// 		if p[k] >= (r.p[k]+r.q[k])/2 {
-// 			return r.p[k]
-// 		}
-// 		return r.q[k]
-// 	}
-
-// 	// This formula can be computed in linear time by precomputing
-// 	// S = sum{1<=i<=n}(|pi - rMi|^2).
-
-// 	S := 0.0
-// 	for i := range p {
-// 		d := p[i] - rM(i)
-// 		S += d * d
-// 	}
-
-// 	// Compute MinMaxDist using the precomputed S.
-// 	min := math.MaxFloat64
-// 	for k := range p {
-// 		d1 := p[k] - rM(k)
-// 		d2 := p[k] - rm(k)
-// 		d := S - d1*d1 + d2*d2
-// 		if d < min {
-// 			min = d
-// 		}
-// 	}
-
-// 	return min
-// }
-
-// func pruneEntries(p Point, entries []entry, minDists []float64) []entry {
-// 	minMinMaxDist := math.MaxFloat64
-// 	for i := range entries {
-// 		minMaxDist := p.minMaxDist(entries[i].bb)
-// 		if minMaxDist < minMinMaxDist {
-// 			minMinMaxDist = minMaxDist
-// 		}
-// 	}
-// 	// remove all entries with minDist > minMinMaxDist
-// 	pruned := []entry{}
-// 	for i := range entries {
-// 		if minDists[i] <= minMinMaxDist {
-// 			pruned = append(pruned, entries[i])
-// 		}
-// 	}
-// 	return pruned
-// }
-
 func pruneEntriesMinDist(d float64, entries []entry, minDists []float64) []entry {
 	var i int
 	for ; i < len(entries); i++ {
@@ -776,30 +708,6 @@ func (p *Point) minDist(r *Box) float64 {
 	}
 	return sum
 }
-
-// func (tree *Rtree) nearestNeighbor(p Point, n *node, d float64, nearest Spatial) (Spatial, float64) {
-// 	if n.leaf {
-// 		for _, e := range n.entries {
-// 			dist := math.Sqrt(p.minDist(e.bb))
-// 			if dist < d {
-// 				d = dist
-// 				nearest = e.obj
-// 			}
-// 		}
-// 	} else {
-// 		branches, dists := sortEntries(p, n.entries)
-// 		branches = pruneEntries(p, branches, dists)
-// 		for _, e := range branches {
-// 			subNearest, dist := tree.nearestNeighbor(p, e.child, d, nearest)
-// 			if dist < d {
-// 				d = dist
-// 				nearest = subNearest
-// 			}
-// 		}
-// 	}
-
-// 	return nearest, d
-// }
 
 // NearestNeighbors gets the closest Spatials to the Point.
 func (tree *Rtree) NearestNeighbors(k int, p Point, filters ...Filter) []Spatial {
@@ -865,7 +773,7 @@ func insertNearest(k int, dists []float64, nearest []Spatial, dist float64, obj 
 	// no resize since cap = k
 	if len(nearest) < k {
 		dists = append(dists, 0)
-		nearest = append(nearest, nil)
+		nearest = append(nearest, Spatial{})
 	}
 
 	left, right := dists[:i], dists[i:len(dists)-1]
