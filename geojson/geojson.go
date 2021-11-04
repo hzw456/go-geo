@@ -97,6 +97,36 @@ func MarshalGeo(geom geo.Geometry) ([]byte, error) {
 	return json.Marshal(geoj)
 }
 
+func UnmarshalGeo(gjson *GeoJson) (geo.Geometry, error) {
+	switch gjson.Type {
+	case "Point":
+		isZ := isInterPointZ(gjson.Coordinates)
+		if isZ {
+			return inter2PointZ(gjson.Coordinates), nil
+		}
+		return inter2Point(gjson.Coordinates), nil
+	case "MultiPoint":
+		return nil, errors.New("Not Support MultiPoint (TODO)")
+	case "LineString":
+		isZ := isInterLineZ(gjson.Coordinates)
+		if isZ {
+			return inter2LineStringZ(gjson.Coordinates), nil
+		}
+		return inter2LineString(gjson.Coordinates), nil
+	case "MultiLineString":
+		return nil, errors.New("Not Support MultiLineString (TODO)")
+	case "Polygon":
+		isZ := isInterPolygonZ(gjson.Coordinates)
+		if isZ {
+			return inter2PolygonZ(gjson.Coordinates), nil
+		}
+		return inter2Polygon(gjson.Coordinates), nil
+	case "MultiPolygon":
+		return nil, errors.New("Not Support MultiPolygon (TODO)")
+	}
+	return nil, nil
+}
+
 // func (c Collection) ToGeojson() ([]byte, error) {
 // 	return "GeometryCollection"
 // }
@@ -320,4 +350,112 @@ func decodePolygonSet(data interface{}) ([][][][]float64, error) {
 	}
 
 	return result, nil
+}
+
+func interface2D(data interface{}) []interface{} {
+	return data.([]interface{})
+}
+
+func inter2Point(data interface{}) geo.Point {
+	var point geo.Point
+	vI := interface2D(data)
+	point.X = vI[0].(float64)
+	point.Y = vI[1].(float64)
+	return point
+}
+
+func inter2PointZ(data interface{}) geo.PointZ {
+	var pointZ geo.PointZ
+	vI := interface2D(data)
+	pointZ.X = vI[0].(float64)
+	pointZ.Y = vI[1].(float64)
+	pointZ.Z = vI[2].(float64)
+	return pointZ
+}
+
+func inter2LineString(data interface{}) geo.LineString {
+	var lineString geo.LineString
+	for _, v := range interface2D(data) {
+		point := inter2Point(v)
+		lineString = append(lineString, point)
+	}
+	return lineString
+}
+
+func inter2LineStringZ(data interface{}) geo.LineStringZ {
+	var lineStringZ geo.LineStringZ
+	for _, v := range interface2D(data) {
+		pointZ := inter2PointZ(v)
+		lineStringZ = append(lineStringZ, pointZ)
+	}
+	return lineStringZ
+}
+
+func inter2LinearRing(data interface{}) geo.LinearRing {
+	var linearRing geo.LinearRing
+	for _, v := range interface2D(data) {
+		point := inter2Point(v)
+		linearRing = append(linearRing, point)
+	}
+	return linearRing
+}
+
+func inter2LinearRingZ(data interface{}) geo.LinearRingZ {
+	var linearRingZ geo.LinearRingZ
+	for _, v := range interface2D(data) {
+		pointZ := inter2PointZ(v)
+		linearRingZ = append(linearRingZ, pointZ)
+	}
+	return linearRingZ
+}
+
+func inter2Polygon(data interface{}) geo.Polygon {
+	var polygon geo.Polygon
+	for _, line := range interface2D(data) {
+		linearRing := inter2LinearRing(line)
+		polygon = append(polygon, linearRing)
+	}
+	return polygon
+}
+
+func inter2PolygonZ(data interface{}) geo.PolygonZ {
+	var polygonZ geo.PolygonZ
+	for _, line := range interface2D(data) {
+		linearRingZ := inter2LinearRingZ(line)
+		polygonZ = append(polygonZ, linearRingZ)
+	}
+	return polygonZ
+}
+
+// 判断坐标是否有Z值
+func isInterPointZ(data interface{}) bool {
+	vI := interface2D(data)
+	if len(vI) == 3 {
+		return true
+	}
+	return false
+}
+
+// 判断坐标是否有Z值
+func isInterLineZ(data interface{}) bool {
+	for _, points := range interface2D(data) {
+		vI := interface2D(points)
+		if len(vI) == 3 {
+			return true
+		}
+	}
+	return false
+}
+
+// 判断坐标是否有Z值
+func isInterPolygonZ(data interface{}) bool {
+	for _, line := range interface2D(data) {
+		for _, v := range interface2D(line) {
+			vI := interface2D(v)
+			if len(vI) == 3 {
+				return true
+			}
+		}
+	}
+	return false
 }
