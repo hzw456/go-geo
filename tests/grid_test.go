@@ -25,12 +25,10 @@ func TestS2GetAllNeighbors(t *testing.T) {
 }
 
 func TestS2RegionCoverer(t *testing.T) {
-	poly := geo.NewPolygonFromPois(geo.Point{23.167959059560499, 113.444875331122134},
-		geo.Point{23.167870240520788, 113.444956239154266}, geo.Point{23.167824392635907, 113.444899423736146},
-		geo.Point{23.167918965135584, 113.444820493455495})
-
-	t.Log(wkt.Encode(*poly))
-	cellID := geo.RegionCoverer(*poly, 22, geo.SRID_WGS84_GPS)
+	geom, _ := wkt.Decode("POLYGON((23.171206994915124 113.442910973440775,23.171141623923660 113.442952310979493,23.171207269583153 113.442911110774787,23.171230616365818 113.442954096321699,23.171165657376402 113.442995433860418))")
+	poly := geom.(geo.Polygon)
+	t.Log(wkt.Encode(poly))
+	cellID := geo.RegionCoverer(poly, 22, geo.SRID_WGS84_GPS)
 	t.Log(cellID)
 }
 
