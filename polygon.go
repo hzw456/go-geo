@@ -106,6 +106,5 @@ func (poly Polygon) GetExteriorPoints() []Point {
 }
 
 func (poly Polygon) IsCCW() bool {
-	ans := (poly[0][1].X-poly[0][0].X)*(poly[0][2].X-poly[0][0].Y) - (poly[0][1].Y-poly[0][0].Y)*(poly[0][2].X-poly[0][0].X) //表示向量AB与AC的叉积的结果
-	return ans > 0
+	return relativeArea(poly) > 0
 }

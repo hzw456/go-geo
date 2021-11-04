@@ -45,7 +45,7 @@ func GetArea(geo Geometry) float64 {
 	return 0
 }
 
-func polyArea(poly Polygon) float64 {
+func relativeArea(poly Polygon) float64 {
 	lr := poly.GetExteriorRing()
 	if lr == nil {
 		return 0
@@ -59,7 +59,11 @@ func polyArea(poly Polygon) float64 {
 		area -= lr[i].Y * lr[j].X
 	}
 	area /= 2
-	return math.Abs(area)
+	return area
+}
+
+func polyArea(poly Polygon) float64 {
+	return math.Abs(relativeArea(poly))
 }
 
 func MultiPolyArea(multiPoly MultiPolygon) float64 {
