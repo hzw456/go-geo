@@ -191,7 +191,7 @@ func LinearCentroid(ring LinearRing) Point {
 func polyCentroid(poly Polygon) Point {
 	lr := poly.GetExteriorRing()
 	if lr == nil {
-		return Point{0, 0}
+		return Point{math.NaN(), math.NaN()}
 	}
 	ptCount := lr.GetPointCount() - 1
 	var centroidX, centroidY, signArea float64
@@ -201,6 +201,9 @@ func polyCentroid(poly Polygon) Point {
 		centroidX += (lr[i].X + lr[j].X) * (lr[i].X*lr[j].Y - lr[j].X*lr[i].Y)
 		centroidY += (lr[i].Y + lr[j].Y) * (lr[i].X*lr[j].Y - lr[j].X*lr[i].Y)
 		signArea += lr[i].X*lr[j].Y - lr[j].X*lr[i].Y
+	}
+	if signArea == 0 {
+		return Point{math.NaN(), math.NaN()}
 	}
 	centroidX *= 1 / (6 * signArea / 2)
 	centroidY *= 1 / (6 * signArea / 2)

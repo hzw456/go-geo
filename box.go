@@ -152,7 +152,13 @@ func Mbr(geom Geometry) Polygon {
 		}
 	}
 	convexHull := ConvexHull(coords...)
+	if convexHull == nil {
+		return nil
+	}
 	cpt := Centroid(convexHull)
+	if math.IsNaN(cpt.X) || math.IsNaN(cpt.Y) {
+		return nil
+	}
 	minArea := math.MaxFloat64
 	minAngle := 0.0
 	ci := coords[0]
@@ -170,5 +176,8 @@ func Mbr(geom Geometry) Polygon {
 		ci = cii
 	}
 	polyGeo := RotateCCW(ssr, cpt, minAngle)
+	if polyGeo == nil {
+		return nil
+	}
 	return polyGeo.(Polygon)
 }

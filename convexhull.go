@@ -70,7 +70,9 @@ func ConvexHull(pts ...Point) Polygon {
 			stack = stack[:len(stack)-1]
 		}
 	}
-
+	if len(stack) < 3 {
+		return nil
+	}
 	return *NewPolygonFromPois(stack...)
 }
 
