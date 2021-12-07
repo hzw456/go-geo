@@ -6,16 +6,6 @@ import (
 	"sort"
 )
 
-// Comparator compares two spatials and returns whether they are equal.
-type Comparator func(obj1, obj2 Spatial) (equal bool)
-
-func defaultComparator(obj1, obj2 Spatial) bool {
-	return obj1 == obj2
-}
-
-// Rtree represents an R-tree, a balanced search tree for storing and querying
-// spatial objects.  Dim specifies the number of spatial dimensions and
-// MinChildren/MaxChildren specify the minimum/maximum branching factors.
 type Rtree struct {
 	MinChildren int
 	MaxChildren int
@@ -24,14 +14,32 @@ type Rtree struct {
 	height      int
 }
 
-func NewDefaultTree(objs ...Spatial) *Rtree {
-	return NewTree(2, 10, objs...)
+func NewTree(objs ...Spatial) *Rtree {
+	minChildren, maxChildren := 0, 0
+	if len(objs) < 10 {
+		minChildren = 2
+		maxChildren = 10
+	} else {
+		minChildren = len(objs) / 6
+		maxChildren = len(objs) / 2
+	}
+	return NewMinMaxTree(minChildren, maxChildren, objs...)
 }
 
-// NewTree returns an Rtree. If the number of objects given on initialization
-// is larger than max, the Rtree will be initialized using the Overlap
-// Minimizing Top-down bulk-loading algorithm.
-func NewTree(min, max int, objs ...Spatial) *Rtree {
+func NewTree(objs ...Spatial) *Rtree {
+	minChildren, maxChildren := 0, 0
+	if len(objs) < 10 {
+		minChildren = 2
+		maxChildren = 10
+	} else {
+		minChildren = len(objs) / 6
+		maxChildren = len(objs) / 2
+	}
+	return NewMinMaxTree(minChildren, maxChildren, objs...)
+}
+
+// 需指定 min max孩子数的tree
+func NewMinMaxTree(min, max int, objs ...Spatial) *Rtree {
 	rt := &Rtree{
 		MinChildren: min,
 		MaxChildren: max,
@@ -109,7 +117,7 @@ func (tree *Rtree) bulkLoad(objs []Spatial) {
 	entries := make([]entry, n)
 	for i := range objs {
 		entries[i] = entry{
-			bb:  BoundingBox(objs[i].geom),
+			bb:  BoundingBox(objs[i].Geom),
 			obj: objs[i],
 		}
 	}
@@ -229,14 +237,14 @@ func (e entry) String() string {
 
 // Spatial is an interface for objects that can be stored in an Rtree and queried.
 type Spatial struct {
-	id         string
-	properties interface{}
-	geom       Geometry
+	ID         string
+	Properties interface{}
+	Geom       Geometry
 }
 
 // 插入rtree
 func (tree *Rtree) Insert(obj Spatial) {
-	e := entry{BoundingBox(obj.geom), nil, obj}
+	e := entry{BoundingBox(obj.Geom), nil, obj}
 	tree.insert(e, 1)
 	tree.size++
 }
@@ -486,30 +494,67 @@ func pickNext(left, right *node, entries []entry) (next int) {
 }
 
 // Deletion
+type Condition func(object ...Spatial) bool
 
 // Delete removes an object from the tree.  If the object is not found, returns
 // false, otherwise returns true. Uses the default comparator when checking
 // equality.
 //
-// Implemented per Section 3.3 of "R-trees: A Dynamic Index Structure for
-// Spatial Searching" by A. Guttman, Proceedings of ACM SIGMOD, p. 47-57, 1984.
 func (tree *Rtree) Delete(obj Spatial) bool {
-	return tree.DeleteWithComparator(obj, defaultComparator)
+	condition := func(object ...Spatial) bool {
+		if len(object) != 2 {
+			return false
+		}
+		return object[0] == object[1]
+	}
+	return tree.DeleteWithComparator(obj, condition)
 }
+
+func (tree *Rtree) DeleteBySpatialID(id string) bool {
+	condition := func(object ...Spatial) bool {
+		if len(object) != 2 {
+			return false
+		}
+		return object[0].ID == object[1].ID
+	}
+	return tree.DeleteWithComparator(Spatial{ID: id}, condition)
+}
+
+// todo 删除box内的geom
+// func (tree *Rtree) DeleteWhereInBox(bb *Box, condition Condition) bool {
+// 	for _, e := range tree.root.entries {
+// 		if !e.bb.Intersect(bb) {
+// 			continue
+// 		}
+
+// 		if !n.leaf {
+// 			results = tree.searchIntersectWithCond(results, e.child, bb, cond)
+// 			continue
+// 		}
+// 		if cond != nil {
+// 			if cond(e.obj) {
+// 				results = append(results, e.obj)
+// 			}
+// 		} else {
+// 			results = append(results, e.obj)
+// 		}
+// 	}
+
+// }
 
 // DeleteWithComparator removes an object from the tree using a custom
 // comparator for evaluating equalness. This is useful when you want to remove
 // an object from a tree but don't have a pointer to the original object
 // anymore.
-func (tree *Rtree) DeleteWithComparator(obj Spatial, cmp Comparator) bool {
-	n := tree.findLeaf(tree.root, obj, cmp)
+func (tree *Rtree) DeleteWithComparator(obj Spatial, cond Condition) bool {
+	n := tree.findLeaf(tree.root, obj, cond)
 	if n == nil {
 		return false
 	}
 
 	ind := -1
 	for i, e := range n.entries {
-		if cmp(e.obj, obj) {
+		if cond(e.obj, obj) {
 			ind = i
 		}
 	}
@@ -532,13 +577,13 @@ func (tree *Rtree) DeleteWithComparator(obj Spatial, cmp Comparator) bool {
 }
 
 // findLeaf finds the leaf node containing obj.
-func (tree *Rtree) findLeaf(n *node, obj Spatial, cmp Comparator) *node {
+func (tree *Rtree) findLeaf(n *node, obj Spatial, cmp Condition) *node {
 	if n.leaf {
 		return n
 	}
 	// if not leaf, search all candidate subtrees
 	for _, e := range n.entries {
-		if e.bb.Contain(BoundingBox(obj.geom)) {
+		if e.bb.Contain(BoundingBox(obj.Geom)) {
 			leaf := tree.findLeaf(e.child, obj, cmp)
 			if leaf == nil {
 				continue
@@ -592,46 +637,30 @@ func (tree *Rtree) condenseTree(n *node) {
 
 // Searching
 
-// SearchIntersect returns all objects that intersect the specified Boxangle.
-// Implemented per Section 3.1 of "R-trees: A Dynamic Index Structure for
-// Spatial Searching" by A. Guttman, Proceedings of ACM SIGMOD, p. 47-57, 1984.
-func (tree *Rtree) SearchIntersect(bb *Box, filters ...Filter) []Spatial {
-	return tree.searchIntersect([]Spatial{}, tree.root, bb, filters)
+func (tree *Rtree) SearchIntersect(bb *Box) []Spatial {
+	return tree.searchIntersectWithCond([]Spatial{}, tree.root, bb, nil)
 }
 
-// SearchIntersectWithLimit is similar to SearchIntersect, but returns
-// immediately when the first k results are found. A negative k behaves exactly
-// like SearchIntersect and returns all the results.
-//
-// Kept for backwards compatibility, please use SearchIntersect with a
-// LimitFilter.
-func (tree *Rtree) SearchIntersectWithLimit(k int, bb *Box) []Spatial {
-	// backwards compatibility, previous implementation didn't limit results if
-	// k was negative.
-	if k < 0 {
-		return tree.SearchIntersect(bb)
-	}
-	return tree.SearchIntersect(bb, LimitFilter(k))
+func (tree *Rtree) SearchIntersectWithCond(bb *Box, cond Condition) []Spatial {
+	return tree.searchIntersectWithCond([]Spatial{}, tree.root, bb, cond)
 }
 
-func (tree *Rtree) searchIntersect(results []Spatial, n *node, bb *Box, filters []Filter) []Spatial {
+func (tree *Rtree) searchIntersectWithCond(results []Spatial, n *node, bb *Box, cond Condition) []Spatial {
 	for _, e := range n.entries {
 		if !e.bb.Intersect(bb) {
 			continue
 		}
 
 		if !n.leaf {
-			results = tree.searchIntersect(results, e.child, bb, filters)
+			results = tree.searchIntersectWithCond(results, e.child, bb, cond)
 			continue
 		}
-
-		refuse, abort := applyFilters(results, e.obj, filters)
-		if !refuse {
+		if cond != nil {
+			if cond(e.obj) {
+				results = append(results, e.obj)
+			}
+		} else {
 			results = append(results, e.obj)
-		}
-
-		if abort {
-			break
 		}
 	}
 	return results
@@ -710,9 +739,7 @@ func (p *Point) minDist(r *Box) float64 {
 }
 
 // NearestNeighbors gets the closest Spatials to the Point.
-func (tree *Rtree) NearestNeighbors(k int, p Point, filters ...Filter) []Spatial {
-	// preallocate the buffers for sortings the branches. At each level of the
-	// tree, we slide the buffer by the number of entries in the node.
+func (tree *Rtree) NearestNeighbors(k int, p Point) []Spatial {
 	maxBufSize := tree.MaxChildren * tree.Depth()
 	branches := make([]entry, maxBufSize)
 	branchDists := make([]float64, maxBufSize)
@@ -721,53 +748,18 @@ func (tree *Rtree) NearestNeighbors(k int, p Point, filters ...Filter) []Spatial
 	dists := make([]float64, 0, k)
 	objs := make([]Spatial, 0, k)
 
-	objs, _, _ = tree.nearestNeighbors(k, p, tree.root, dists, objs, filters, branches, branchDists)
+	objs, _, _ = tree.nearestNeighbors(k, p, tree.root, dists, objs, branches, branchDists)
 	return objs
 }
 
-// Filter is an interface for filtering leaves during search. The parameters
-// should be treated as read-only. If refuse is true, the current entry will
-// not be added to the result set. If abort is true, the search is aborted and
-// the current result set will be returned.
-type Filter func(results []Spatial, object Spatial) (refuse, abort bool)
-
-// ApplyFilters applies the given filters and returns whether the entry is
-// refused and/or the search should be aborted. If a filter refuses an entry,
-// the following filters are not applied for the entry. If a filter aborts, the
-// search terminates without further applying any filter.
-func applyFilters(results []Spatial, object Spatial, filters []Filter) (bool, bool) {
-	for _, filter := range filters {
-		refuse, abort := filter(results, object)
-		if refuse || abort {
-			return refuse, abort
-		}
-	}
-	return false, false
-}
-
-// LimitFilter checks if the results have reached the limit size and aborts if so.
-func LimitFilter(limit int) Filter {
-	return func(results []Spatial, object Spatial) (refuse, abort bool) {
-		if len(results) >= limit {
-			return true, true
-		}
-
-		return false, false
-	}
-}
-
 // insert obj into nearest and return the first k elements in increasing order.
-func insertNearest(k int, dists []float64, nearest []Spatial, dist float64, obj Spatial, filters []Filter) ([]float64, []Spatial, bool) {
+func insertNearest(k int, dists []float64, nearest []Spatial, dist float64, obj Spatial) ([]float64, []Spatial, bool) {
 	i := sort.SearchFloat64s(dists, dist)
 	for i < len(nearest) && dist >= dists[i] {
 		i++
 	}
 	if i >= k {
 		return dists, nearest, false
-	}
-
-	if refuse, abort := applyFilters(nearest, obj, filters); refuse || abort {
-		return dists, nearest, abort
 	}
 
 	// no resize since cap = k
@@ -789,12 +781,12 @@ func insertNearest(k int, dists []float64, nearest []Spatial, dist float64, obj 
 	return dists, nearest, false
 }
 
-func (tree *Rtree) nearestNeighbors(k int, p Point, n *node, dists []float64, nearest []Spatial, filters []Filter, b []entry, bd []float64) ([]Spatial, []float64, bool) {
+func (tree *Rtree) nearestNeighbors(k int, p Point, n *node, dists []float64, nearest []Spatial, b []entry, bd []float64) ([]Spatial, []float64, bool) {
 	var abort bool
 	if n.leaf {
 		for _, e := range n.entries {
 			dist := p.minDist(e.bb)
-			dists, nearest, abort = insertNearest(k, dists, nearest, dist, e.obj, filters)
+			dists, nearest, abort = insertNearest(k, dists, nearest, dist, e.obj)
 			if abort {
 				break
 			}
@@ -806,11 +798,19 @@ func (tree *Rtree) nearestNeighbors(k int, p Point, n *node, dists []float64, ne
 			branches = pruneEntriesMinDist(dists[l-1], branches, branchDists)
 		}
 		for _, e := range branches {
-			nearest, dists, abort = tree.nearestNeighbors(k, p, e.child, dists, nearest, filters, b[len(n.entries):], bd[len(n.entries):])
+			nearest, dists, abort = tree.nearestNeighbors(k, p, e.child, dists, nearest, b[len(n.entries):], bd[len(n.entries):])
 			if abort {
 				break
 			}
 		}
 	}
 	return nearest, dists, abort
+}
+
+// 非原子性操作
+func (tree *Rtree) UpsertBySpatialID(objects ...Spatial) {
+	for _, object := range objects {
+		tree.DeleteBySpatialID(object.ID)
+		tree.Insert(object)
+	}
 }
