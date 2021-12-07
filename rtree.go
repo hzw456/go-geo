@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"sort"
+	"time"
 )
 
 type Rtree struct {
@@ -12,6 +13,23 @@ type Rtree struct {
 	root        *node
 	size        int
 	height      int
+}
+
+func NewRandomIDTree(objs ...Geometry) *Rtree {
+	minChildren, maxChildren := 0, 0
+	if len(objs) < 10 {
+		minChildren = 2
+		maxChildren = 10
+	} else {
+		minChildren = len(objs) / 6
+		maxChildren = len(objs) / 2
+	}
+	rid := time.Now().UnixNano()
+	var sps []Spatial
+	for i, v := range objs {
+		sps = append(sps, Spatial{fmt.Sprintf("%d_0_%d", rid, i), nil, v})
+	}
+	return NewMinMaxTree(minChildren, maxChildren, sps...)
 }
 
 func NewTree(objs ...Spatial) *Rtree {
@@ -26,7 +44,7 @@ func NewTree(objs ...Spatial) *Rtree {
 	return NewMinMaxTree(minChildren, maxChildren, objs...)
 }
 
-func NewTree(objs ...Spatial) *Rtree {
+func NewTreeWith(objs ...Spatial) *Rtree {
 	minChildren, maxChildren := 0, 0
 	if len(objs) < 10 {
 		minChildren = 2
@@ -245,6 +263,13 @@ type Spatial struct {
 // 插入rtree
 func (tree *Rtree) Insert(obj Spatial) {
 	e := entry{BoundingBox(obj.Geom), nil, obj}
+	tree.insert(e, 1)
+	tree.size++
+}
+
+// 插入rtree
+func (tree *Rtree) InsertWithRandomId(geom Geometry) {
+	e := entry{BoundingBox(geom), nil, Spatial{fmt.Sprintf("%d_1_%d", time.Now().UnixNano(), tree.Size), nil, geom}}
 	tree.insert(e, 1)
 	tree.size++
 }
