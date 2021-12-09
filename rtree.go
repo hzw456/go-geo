@@ -542,7 +542,14 @@ func (tree *Rtree) DeleteBySpatialID(id string) bool {
 		}
 		return object[0].ID == object[1].ID
 	}
-	return tree.DeleteWithComparator(Spatial{ID: id}, condition)
+	sps := tree.SearchBySpatialID(id)
+	if len(sps) == 0 {
+		return false
+	}
+	for _, sp := range sps {
+		tree.DeleteWithComparator(sp, condition)
+	}
+	return true
 }
 
 // todo 删除box内的geom
@@ -689,6 +696,14 @@ func (tree *Rtree) searchIntersectWithCond(results []Spatial, n *node, bb *Box, 
 		}
 	}
 	return results
+}
+
+func (tree *Rtree) SearchBySpatialID(id string) []Spatial {
+	condition := func(object ...Spatial) bool {
+		return id == object[0].ID
+	}
+	res := tree.SearchIntersectWithCond(tree.root.computeBoundingBox(), condition)
+	return res
 }
 
 // GetAllBoundingBoxes returning slice of bounding boxes by traversing tree. Slice
