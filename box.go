@@ -110,7 +110,7 @@ func (b1 *Box) Intersect(b2 *Box) bool {
 func (b1 *Box) Union(b2 *Box) *Box {
 	// math.Max(float64, float64) float64
 	return &Box{MinX: math.Min(b1.MinX, b2.MinX), MinY: math.Min(b1.MinY, b2.MinY),
-		MaxX: math.Max(b1.MaxX, b2.MaxX), MaxY: math.Max(b1.MinY, b2.MinY)}
+		MaxX: math.Max(b1.MaxX, b2.MaxX), MaxY: math.Max(b1.MaxY, b2.MaxY)}
 }
 
 func BoxUnion(boxs ...*Box) *Box {
