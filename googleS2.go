@@ -49,7 +49,7 @@ func S2GetAllNeighbors(cellID uint64, srid SRID) []uint64 {
 }
 
 func RegionCoverer(poly Polygon, level int, srid SRID) []uint64 {
-	if !poly.IsCCW() {
+	if poly.IsCCW() {
 		pois := poly.GetExteriorRing().GetPointSet()
 		for i, j := 0, len(pois)-1; i < j; i, j = i+1, j-1 {
 			pois[i], pois[j] = pois[j], pois[i]
