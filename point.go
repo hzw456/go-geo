@@ -5,6 +5,7 @@ import (
 )
 
 type Point struct {
+	//如果用经纬度，x为经度，y为纬度
 	X float64
 	Y float64
 }
