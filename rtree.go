@@ -764,13 +764,21 @@ func pruneEntriesMinDist(d float64, entries []entry, minDists []float64) []entry
 }
 
 func (p *Point) minDist(r *Box) float64 {
-
 	sum := 0.0
 	if p.X < r.MinX {
 		d := p.X - r.MinX
 		sum += d * d
 	} else if p.X > r.MaxX {
 		d := p.X - r.MaxX
+		sum += d * d
+	} else {
+		sum += 0
+	}
+	if p.Y < r.MinY {
+		d := p.Y - r.MinY
+		sum += d * d
+	} else if p.Y > r.MaxY {
+		d := p.Y - r.MaxY
 		sum += d * d
 	} else {
 		sum += 0
