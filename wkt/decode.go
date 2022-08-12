@@ -2,7 +2,6 @@ package wkt
 
 import (
 	"errors"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -168,8 +167,6 @@ func PolygonZFromWKT(wkt string) (geo.Geometry, error) {
 		if err != nil {
 			return nil, err
 		}
-		polygonT := polygon.Type()
-		log.Println(polygonT)
 		if polygon.Type() == geo.GEOMETRY_LINESTRING {
 			line := polygon.(geo.LineString)
 			Poly = append(Poly, line.ToRing())
