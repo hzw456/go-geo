@@ -45,7 +45,7 @@ func GetArea(geo Geometry) float64 {
 	return 0
 }
 
-func polyArea(poly Polygon) float64 {
+func relativeArea(poly Polygon) float64 {
 	lr := poly.GetExteriorRing()
 	if lr == nil {
 		return 0
@@ -59,7 +59,11 @@ func polyArea(poly Polygon) float64 {
 		area -= lr[i].Y * lr[j].X
 	}
 	area /= 2
-	return math.Abs(area)
+	return area
+}
+
+func polyArea(poly Polygon) float64 {
+	return math.Abs(relativeArea(poly))
 }
 
 func MultiPolyArea(multiPoly MultiPolygon) float64 {
@@ -187,7 +191,7 @@ func LinearCentroid(ring LinearRing) Point {
 func polyCentroid(poly Polygon) Point {
 	lr := poly.GetExteriorRing()
 	if lr == nil {
-		return Point{0, 0}
+		return Point{math.NaN(), math.NaN()}
 	}
 	ptCount := lr.GetPointCount() - 1
 	var centroidX, centroidY, signArea float64
@@ -197,6 +201,9 @@ func polyCentroid(poly Polygon) Point {
 		centroidX += (lr[i].X + lr[j].X) * (lr[i].X*lr[j].Y - lr[j].X*lr[i].Y)
 		centroidY += (lr[i].Y + lr[j].Y) * (lr[i].X*lr[j].Y - lr[j].X*lr[i].Y)
 		signArea += lr[i].X*lr[j].Y - lr[j].X*lr[i].Y
+	}
+	if signArea == 0 {
+		return Point{math.NaN(), math.NaN()}
 	}
 	centroidX *= 1 / (6 * signArea / 2)
 	centroidY *= 1 / (6 * signArea / 2)

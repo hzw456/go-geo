@@ -104,3 +104,7 @@ func (poly Polygon) SelfIntersect() bool {
 func (poly Polygon) GetExteriorPoints() []Point {
 	return poly.GetExteriorRing()
 }
+
+func (poly Polygon) IsCCW() bool {
+	return relativeArea(poly) > 0
+}

@@ -38,3 +38,12 @@ func TestHausdorff(t *testing.T) {
 	dis := geo.HausdorffDistance(line1, line2, geo.SRID_WGS84_PSEUDO_MERCATOR)
 	t.Log(dis)
 }
+
+func TestGetArea(t *testing.T) {
+	newPoint1 := *geo.NewPoint(0, 0)
+	newPoint2 := *geo.NewPoint(1, 1)
+	newPoint3 := *geo.NewPoint(2, 0)
+	line1 := *geo.NewLineString(newPoint1, newPoint2, newPoint3)
+	poly1 := *geo.NewPolygon(*geo.NewRingFromLine(line1))
+	t.Log(geo.GetArea(poly1))
+}
