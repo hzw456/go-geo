@@ -2,8 +2,6 @@ package geo
 
 import (
 	"math"
-
-	"github.com/hzw456/go-geo/geos"
 )
 
 const CirclePolygonEdgeCount = 24
@@ -30,32 +28,4 @@ func getBufferCoordsByRadian(center Point, startRadian, endRadian, radius float6
 		bufferPoints = append(bufferPoints, *point)
 	}
 	return bufferPoints
-}
-
-func polyBuffer(p1 Polygon, width float64) Polygon {
-	var pois []geos.Point
-	for _, poi := range p1.GetExteriorPoints() {
-		pois = append(pois, geos.Point{poi.X, poi.Y})
-	}
-	cg := geos.CreatePolygon(pois)
-	geosm := cg.Buffer(width)
-	geom := GeosToGeo(geosm)
-	if geom != nil && geom.Type() == GEOMETRY_POLYGON {
-		return geom.(Polygon)
-	}
-	return Polygon{}
-}
-
-func bufferWithStyle(g LineString, width float64, quadsegs int, endCapStyle geos.CapType, joinStyle geos.JoinType, mitreLimit float64) Polygon {
-	var pois []geos.Point
-	for _, poi := range g {
-		pois = append(pois, geos.Point{poi.X, poi.Y})
-	}
-	cg := geos.CreateLineString(pois)
-	geosm := cg.BufferWithStyle(width, quadsegs, endCapStyle, joinStyle, mitreLimit)
-	geom := GeosToGeo(geosm)
-	if geom != nil && geom.Type() == GEOMETRY_POLYGON {
-		return geom.(Polygon)
-	}
-	return Polygon{}
 }
