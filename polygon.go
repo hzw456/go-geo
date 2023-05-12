@@ -22,10 +22,6 @@ func (g Polygon) SetSrid(srid uint64) {
 	SridMap[&g] = srid
 }
 
-func (p Polygon) Buffer(width float64) Polygon {
-	return polyBuffer(p, width)
-}
-
 //多边形的外环
 func (poly Polygon) GetExteriorRing() LinearRing {
 	if len(poly) == 0 {
