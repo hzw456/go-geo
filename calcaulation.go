@@ -6,7 +6,7 @@ import (
 	"math"
 )
 
-//计算三个点的角度 使用公式θ=atan2(v2.y,v2.x)−atan2(v1.y,v1.x)
+// 计算三个点的角度 使用公式θ=atan2(v2.y,v2.x)−atan2(v1.y,v1.x)
 func CacAngle(point1, centerPoint, point2 Point) (float64, error) {
 	v := ConvertPointToVector(point1, centerPoint)
 	u := ConvertPointToVector(point2, centerPoint)
@@ -34,7 +34,7 @@ func CacQuadrantAngle(point1, point2 Point) (float64, error) {
 	return angle, err
 }
 
-//求多边形的面积 论文:《多边形面积的计算与面积法的应用》
+// 求多边形的面积 论文:《多边形面积的计算与面积法的应用》
 func GetArea(geo Geometry) float64 {
 	switch geo := geo.(type) {
 	case Polygon:
@@ -74,12 +74,10 @@ func MultiPolyArea(multiPoly MultiPolygon) float64 {
 	return areaSum
 }
 
-//计算多个点的中心
+// 计算多个点的中心
 func pointsCenteriod(points ...Point) Point {
 	var pointList []Point
-	for _, v := range points {
-		pointList = append(pointList, v)
-	}
+	pointList = append(pointList, points...)
 	amount := len(pointList)
 	if amount == 0 {
 		return Point{0, 0}
@@ -95,7 +93,7 @@ func pointsCenteriod(points ...Point) Point {
 	return Point{Lat, Lng}
 }
 
-//计算顶点的凹凸性 先计算待处理点与相邻点的两个向量，再计算两向量的叉乘，根据求得结果的正负可以判断凹凸性。 0代表凸顶点，1代表凹顶点，2代表平角
+// 计算顶点的凹凸性 先计算待处理点与相邻点的两个向量，再计算两向量的叉乘，根据求得结果的正负可以判断凹凸性。 0代表凸顶点，1代表凹顶点，2代表平角
 func CacConvex(p1, p2, p3 Point) (int8, error) {
 	//直接采用算sin theata 来判断凹凸性
 	theata, err := CacAngle(p1, p2, p3)
@@ -111,7 +109,7 @@ func CacConvex(p1, p2, p3 Point) (int8, error) {
 	return 2, nil
 }
 
-//Euclidean distance
+// Euclidean distance
 func PointDistance(p1 Point, p2 Point, srid SRID) float64 {
 	if srid == SRID_WGS84_GPS {
 		return CoordDistance(p1, p2)
@@ -124,7 +122,7 @@ func EuclideanDistance(p1 Point, p2 Point) float64 {
 	return math.Sqrt((p1.X-p2.X)*(p1.X-p2.X) + (p1.Y-p2.Y)*(p1.Y-p2.Y))
 }
 
-//计算点到线段的距离 计算了最近点
+// 计算点到线段的距离 计算了最近点
 func PointToSegmentDistance(point, p1, p2 Point, srid SRID) (float64, Point) {
 	var xDelta float64 = p2.X - p1.X
 	var yDelta float64 = p2.Y - p1.Y
@@ -163,7 +161,7 @@ func PointToLineDistance(point, p1, p2 Point, srid SRID) (float64, Point, float6
 	return dist, closestPointOnLine, u
 }
 
-//如果是一堆点 即计算其坐标的平均值
+// 如果是一堆点 即计算其坐标的平均值
 func Centroid(geo Geometry) Point {
 	switch geo := geo.(type) {
 	case Point:
@@ -178,7 +176,7 @@ func Centroid(geo Geometry) Point {
 	return Point{0, 0}
 }
 
-//TODO:如果线在一条直线上，需要改进算法
+// TODO:如果线在一条直线上，需要改进算法
 func lineCentroid(line LineString) Point {
 	return LinearCentroid(*NewRingFromLine(line))
 }
@@ -187,7 +185,7 @@ func LinearCentroid(ring LinearRing) Point {
 	return polyCentroid(*NewPolygon(ring))
 }
 
-//https://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
+// https://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
 func polyCentroid(poly Polygon) Point {
 	lr := poly.GetExteriorRing()
 	if lr == nil {
@@ -211,7 +209,8 @@ func polyCentroid(poly Polygon) Point {
 }
 
 func PointPolygonDistance(p Point, poly Polygon, srid SRID) float64 {
-	if IsPointInPolygon(p, poly) == RELA_CONTAIN || IsPointInPolygon(p, poly) == RELA_TOUCH {
+
+	if PointInPolygon(p, poly) {
 		return 0
 	}
 	var distance = INF

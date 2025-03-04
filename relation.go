@@ -1,7 +1,7 @@
 package geo
 
-//https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-//判断两个线段是否相交
+// https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+// 判断两个线段是否相交
 func SegmentRelation(seg1, seg2 LineSegment) GeometryRealation {
 	r := ConvertSegToVector(seg1)
 	s := ConvertSegToVector(seg2)
@@ -40,8 +40,8 @@ func SegPolyRelation(seg LineSegment, poly Polygon) GeometryRealation {
 			isPointOnBoundary = true
 		}
 	}
-	flag1 := IsPointInPolygon(seg.Start, poly) == RELA_CONTAIN || IsPointInPolygon(seg.Start, poly) == RELA_TOUCH
-	flag2 := IsPointInPolygon(seg.End, poly) == RELA_CONTAIN || IsPointInPolygon(seg.End, poly) == RELA_TOUCH
+	flag1 := PointInPolygon(seg.Start, poly)
+	flag2 := PointInPolygon(seg.End, poly)
 	//最后判断线段的首尾点在不在多边形内
 	if flag1 && flag2 && !isPointOnBoundary {
 		return RELA_CONTAIN
