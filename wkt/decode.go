@@ -129,7 +129,7 @@ func MultiLineStringFromWKT(wkt string) (geo.Geometry, error) {
 }
 
 func PolygonFromWKT(wkt string) (geo.Geometry, error) {
-	re := regexp.MustCompile(`(\ *[(]\ *(?:\ *(?:[0-9-.Ee]+[ ]+[0-9-.Ee]+)[, ]*\ *)*\ *[)])[, ]*`)
+	re := regexp.MustCompile(`^\(((\s*(\-|\+)?\d+(\.\d+)?\s+(\-|\+)?\d+(\.\d+)?\s+(\-|\+)?\d+(\.\d+)?),*)*\),*$`)
 	matches := re.FindStringSubmatch(wkt)
 	var poly geo.Polygon
 	var polyz geo.PolygonZ
@@ -153,6 +153,37 @@ func PolygonFromWKT(wkt string) (geo.Geometry, error) {
 	} else {
 		return poly, errors.New("polygon is empty")
 	}
+}
+
+func PolygonZFromWKT(wkt string) (geo.Geometry, error) {
+	// re := regexp.MustCompile(`(\ *[(]\ *(?:\ *(?:[0-9-.Ee]+[ ]+[0-9-.Ee]+[ ]+[0-9-.Ee]+)[, ]*\ *)*\ *[)])[, ]*`)
+	re := regexp.MustCompile(`^\(((\s*(\-|\+)?\d+(\.\d+)?\s+(\-|\+)?\d+(\.\d+)?\s+(\-|\+)?\d+(\.\d+)?),*)*\),*$`)
+	// matches := re.FindStringSubmatch(wkt)
+	matches := re.FindAllString(wkt, -1)
+	var Poly geo.Polygon
+	var PolyZ geo.PolygonZ
+	for _, v := range matches {
+		polygon, err := LineStringFromWKT(v)
+		if err != nil {
+			return nil, err
+		}
+		if polygon.Type() == geo.GEOMETRY_LINESTRING {
+			line := polygon.(geo.LineString)
+			Poly = append(Poly, line.ToRing())
+		} else if polygon.Type() == geo.GEOMETRY_LINESTRINGZ {
+			lineZ := polygon.(geo.LineStringZ)
+			PolyZ = append(PolyZ, lineZ.ToRing())
+		}
+
+	}
+	if len(Poly) > 0 {
+		return Poly, nil
+	} else if len(PolyZ) > 0 {
+		return PolyZ, nil
+	} else {
+		return PolyZ, errors.New("polygon is empty")
+	}
+
 }
 
 func MultiPolygonFromWKT(wkt string) (geo.Geometry, error) {
@@ -185,25 +216,29 @@ func MultiPolygonFromWKT(wkt string) (geo.Geometry, error) {
 
 func Decode(wkt string) (geo.Geometry, error) {
 	wkt = strings.Trim(wkt, " ")
+	wkt = strings.Replace(wkt, " Z", "Z", 1)
 	wkt = strings.Replace(wkt, ", ", ",", -1)
 	re := regexp.MustCompile(`([A-Z]+)\s*[(]\s*(\(*.+\)*)\s*[)]`)
+
 	match := re.FindStringSubmatch(wkt)
 	if len(match) != 3 {
 		return nil, errors.New("wkt format is error")
 	}
 	switch match[1] {
-	case "MULTIPOLYGON":
+	case "MULTIPOLYGON", "MULTIPOLYGONZ":
 		return MultiPolygonFromWKT(match[2])
 	case "POLYGON":
 		return PolygonFromWKT(match[2])
-	case "MULTILINESTRING":
+	case "MULTILINESTRING", "MULTILINESTRINGZ":
 		return MultiLineStringFromWKT(match[2])
-	case "LINESTRING":
+	case "LINESTRING", "LINESTRINGZ":
 		return LineStringFromWKT(match[2])
-	case "MULTIPOINT":
+	case "MULTIPOINT", "MULTIPOINTZ":
 		return MultiPointFromWKT(match[2])
-	case "POINT":
+	case "POINT", "POINTZ":
 		return PointFromWKT(match[2])
+	case "POLYGONZ":
+		return PolygonZFromWKT(match[2])
 	}
 	return nil, errors.New("wkt format is error")
 }
